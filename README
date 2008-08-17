@@ -1,0 +1,41 @@
+NAME
+	Bashpress
+
+SYNOPSIS
+	<bashpress>/bin/new <title>
+	<bashpress>/bin/publish <path>
+
+DESCRIPTION
+	Bashpress is a rebellion against browser-based blogging engines,
+	WYSIWYG editors, and relational databases.  It is command-line only,
+	has no user accounts, and doesn't use a database.  It loves Smarty [1].
+
+INSTALLATION
+	Download or checkout Bashpress.  Use the included httpd.conf file to
+	setup a VirtualHost rooted at <bashpress>/public.  Create and make
+	writable by the webserver <bashpress>/.templates.
+
+	You may need to modify the PHP include_path variable, defined in
+	httpd.conf, to point to your Smarty installation.
+
+DEPENDENCIES
+	PHP <http://php.net/>
+	Smarty <http://smarty.php.net/>
+
+VERSION
+	0.1
+
+DATE
+	2008-08-17
+
+AUTHOR
+	Richard Crowley <r@rcrowley.org>
+
+SEE ALSO
+	<http://rcrowley.org/tags/bashpress>
+	<http://github.com/rcrowley/bashpress>
+
+LICENSE
+	This work is licensed under a Creative Commons
+	Attribution-Share Alike 3.0 Unported License
+	<http://creativecommons.org/licenses/by-sa/3.0/>

@@ -1,0 +1,21 @@
+{ldelim}if $page{rdelim}
+{ldelim}assign var="title" value="{$title}"{rdelim}
+{ldelim}include file="_head.html"{rdelim}
+{ldelim}/if{rdelim}
+<div class="post">
+<h1><a href="{$path}/{$file}">{$title}</a>
+<small>{$smarty.now|date_format:"%Y/%m/%d"}</small></h1>
+<ul>
+{foreach from=$tags item=tag}
+	<li><a href="/tags/{$tag}">{$tag}</a></li>
+{/foreach}
+</ul>
+{$body}
+</div>
+{ldelim}if $page{rdelim}
+<ol>
+{ldelim}include file=".posts{$path}/.{$file}.html"{rdelim}
+</ol>
+{ldelim}include file="_comment.html"{rdelim}
+{ldelim}include file="_foot.html"{rdelim}
+{ldelim}/if{rdelim}

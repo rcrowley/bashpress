@@ -1,0 +1,9 @@
+{assign var="title" value="$tag"}
+{include file="_head.html"}
+<h1>Posts tagged &ldquo;{$tag}&rdquo;</h1>
+{include file=".tags/$tag.html"}
+<div id="nav">
+<p>Other tags:</p>
+{include file=".tags.html"}
+</div>
+{include file="_foot.html"}

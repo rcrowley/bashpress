@@ -1,0 +1,38 @@
+#!/usr/bin/env php
+<?php
+
+require_once dirname(__FILE__) . '/../include/init.php';
+loadlib('url');
+
+# Post title in URI form
+if (2 != sizeof($argv)) {
+	echo "Usage: {$argv[0]} <title>\n";
+	exit(1);
+}
+$title = url_sanitize($argv[1]);
+if ('' == $title) {
+	echo "[new] post title resulted in an empty URI\n";
+	exit(1);
+}
+$posts = dirname(__FILE__) . '/../posts';
+if (!is_dir($posts)) { mkdir($posts); }
+if (file_exists("$posts/$y/$m/$d/$title")) {
+	echo "[new] there is already a post by that name today\n";
+	exit(1);
+}
+
+# Date directories
+$y = date('Y');
+$m = date('m');
+$d = date('d');
+if (!is_dir("$posts/$y")) { mkdir("$posts/$y", 0755); }
+if (!is_dir("$posts/$y/$m")) { mkdir("$posts/$y/$m", 0755); }
+if (!is_dir("$posts/$y/$m/$d")) { mkdir("$posts/$y/$m/$d", 0755); }
+file_put_contents("$posts/$y/$m/$d/$title",
+	"{$argv[1]}\n\n[tags]\n\n<p>[body]</p>");
+
+# Great success!
+echo "[new] post has been created and can be edited in:\n[new] ",
+	realpath("$posts/$y/$m/$d/$title"), "\n";
+
+exit(0);

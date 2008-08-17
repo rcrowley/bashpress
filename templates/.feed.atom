@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>{$TITLE}</title>
+	<link href="http://{$FQDN}/feed" rel="self"/>
+	<link href="http://{$FQDN}/" rel="alternate"/>
+	<id>http://{$FQDN}/feed</id>
+	<updated>2008-08-17T14:49:38-07:00</updated>
+	<author><name>{$AUTHOR}</name></author>
+</feed>

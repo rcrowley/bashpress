@@ -1,0 +1,6 @@
+#!/usr/bin/env php
+<?php
+
+# TODO: Generate a secret URL to preview a post
+
+exit(0);

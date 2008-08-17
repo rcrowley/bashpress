@@ -1,0 +1,261 @@
+#!/usr/bin/env php
+<?php
+
+#
+# The only argument must be a valid and existing post
+#
+
+if (2 != sizeof($argv)) { 
+	echo "Usage: {$argv[0]} <post>\n";
+	exit(1);
+}
+if (!file_exists($argv[1])) {
+	echo "[publish] can't find a post at {$argv[1]}\n";
+	exit(1);
+}
+$base = realpath(dirname(__FILE__) . '/../posts');
+if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
+	echo "[publish] can only publish from the posts/ directory\n";
+	exit(1);
+}
+
+require_once dirname(__FILE__) . '/../include/init.php';
+
+
+
+#
+# Check if this post has already been published
+#   Don't allow republishing, instead, send them to the bin/republish script
+#
+
+$path = str_replace(realpath(dirname(__FILE__) . '/../posts'), '',
+	realpath($argv[1]));
+if (file_exists("{$smarty->template_dir}/.posts$path.html")) {
+	echo "[publish] can't republish {$argv[1]}\n";
+	exit(1);
+}
+
+
+
+#
+# Move this post up to today it necessary
+#
+
+$parts = explode('/', str_replace(
+	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
+$file = array_pop($parts);
+if (date('Y-m-d') != implode('-', $parts)) {
+	$newparts = array(date('Y'), date('m'), date('d'));
+	$path = '';
+	foreach ($newparts as $p) {
+		$path .= "/$p";
+		if (!is_dir(dirname(__FILE__) . "/../posts/$path")) {
+			mkdir(dirname(__FILE__) . "/../posts/$path", 0755);
+		}
+	}
+	rename($argv[1], dirname(__FILE__) . "/../posts/$path/$file");
+	$ii = sizeof($parts);
+	for ($i = 0; $i < $ii; ++$i) {
+		if (!@rmdir($argv[1] = dirname($argv[1]))) { break; }
+	}
+	$argv[1] = dirname(__FILE__) . "/../posts/$path/$file";
+}
+
+
+
+#
+# Create directories for the <year>/<month>/<day>
+#
+
+if (!is_dir("{$smarty->template_dir}/.posts")) {
+	mkdir("{$smarty->template_dir}/.posts", 0755);
+}
+$parts = explode('/', str_replace(
+	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
+$file = array_pop($parts);
+$path = '';
+foreach ($parts as $p) {
+	$path .= "/$p";
+	if (!is_dir("{$smarty->template_dir}/.posts$path")) {
+		mkdir("{$smarty->template_dir}/.posts$path", 0755);
+	}
+}
+
+
+
+#
+# Create next and previous pointers in the directory tree
+#
+
+# Recursively walk the directory tree
+#   This special rscandir function will return a tree of only directories
+function rscandir($dir) {
+	$ls = array_diff(scandir($dir), array('.', '..'));
+	$out = array();
+	foreach ($ls as $l) {
+		if (is_dir("$dir/$l")) { $out[$l] = rscandir("$dir/$l"); }
+	}
+	return sizeof($out) ? $out : false;
+}
+$tree = rscandir("{$smarty->template_dir}/.posts");
+
+# Flatten the walked directory tree at every depth
+function flatten($tree, $path = '', $depth = 1) {
+	$list = array();
+	foreach ($tree as $dir => $subtree) {
+		$list[$depth][] = "$path/$dir";
+		if ($subtree) {
+			$sublist = flatten($subtree, "$path/$dir", $depth + 1);
+			foreach ($sublist as $d => $l) {
+				if (!is_array($list[$d])) { $list[$d] = array(); }
+				$list[$d] = array_merge($list[$d], $l);
+			}
+		}
+	}
+	return $list;
+}
+$list = flatten($tree);
+
+# Create next and previous pointers
+$depth = 0;
+$path = '';
+foreach ($parts as $p) {
+	++$depth;
+	$path .= "/$p";
+	if ($i = array_search($path, $list[$depth])) {
+		--$i;
+		file_put_contents("{$smarty->template_dir}/.posts$path/older",
+			$list[$depth][$i]);
+		file_put_contents(
+			"{$smarty->template_dir}/.posts{$list[$depth][$i]}/newer",
+			$path);
+	}
+}
+
+
+
+#
+# Touch the post's comments file
+#
+
+touch("{$smarty->template_dir}/.posts$path/.$file.html");
+chmod("{$smarty->template_dir}/.posts$path/.$file.html", 0666);
+echo "[publish] touched the post's comments file\n";
+
+
+
+#
+# Write the post in all its various forms
+#
+
+# Write the post's Smarty template
+list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
+	file_get_contents($argv[1]), 3);
+$tags = preg_split('!\s+!', $tags);
+assign('path');
+assign('file');
+assign('title');
+assign('tags');
+assign('body');
+file_put_contents("{$smarty->template_dir}/.posts$path/$file.html",
+	$smarty->fetch('post.smarty'), LOCK_EX);
+echo "[publish] created the post's Smarty template\n";
+
+# Update the homepage
+prepend('/.index',  5);
+echo "[publish] updated the homepage\n";
+
+# Update the Atom feed
+$permalink = "http://{\$FQDN}$path/$file";
+$date = date('c');
+$dom = new DOMDocument;
+$dom->load("{$smarty->template_dir}/.feed.atom");
+$feed = $dom->documentElement;
+$updated = $feed->getElementsByTagName('updated')->item(0);
+$updated->removeChild($updated->firstChild);
+$updated->appendChild($dom->createTextNode($date));
+$entries = $feed->getElementsByTagName('entry');
+if (15 == $entries->length) {
+	$feed->removeChild($entries->item(14));
+}
+$entry = $dom->createElement('entry');
+$entry->appendChild($dom->createElement('title', $title));
+$link = $dom->createElement('link');
+$link->setAttribute('href', $permalink);
+$link->setAttribute('rel', 'alternate');
+$entry->appendChild($link);
+$entry->appendChild($dom->createElement('id', $permalink));
+$entry->appendChild($dom->createElement('published', $date));
+$entry->appendChild($dom->createElement('updated', $date));
+$author = $dom->createElement('author');
+$author->appendChild($dom->createElement('name', '{$AUTHOR}'));
+$entry->appendChild($author);
+$content = $dom->createElement('content', htmlspecialchars($body));
+$content->setAttribute('type', 'html');
+$entry->appendChild($content);
+if ($entries->length) { $feed->insertBefore($entry, $entries->item(0)); }
+else { $feed->appendChild($entry); }
+file_put_contents("{$smarty->template_dir}/.feed.atom",
+	$dom->saveXML(), LOCK_EX);
+echo "[publish] updated the Atom feed\n";
+
+# Prepend to archive pages
+$archive = '/.posts';
+foreach ($parts as $p) {
+	$archive .= "/$p";
+	prepend($archive);
+}
+echo "[publish] added this post to the archives\n";
+
+# Prepend to tag pages
+if (!is_dir("{$smarty->template_dir}/.tags")) {
+	mkdir("{$smarty->template_dir}/.tags", 0755);
+}
+foreach ($tags as $t) { prepend("/.tags/$t"); }
+echo "[publish] added this post to the tag pages\n";
+
+function prepend($tpl, $count = 0) {
+	$tpl = "{$GLOBALS['smarty']->template_dir}$tpl.html";
+	if (file_exists($tpl)) {
+		$lines = explode("\n", file_get_contents($tpl));
+	} else { $lines = array(); }
+	global $path, $file;
+	array_unshift($lines, "{include file=\".posts$path/$file.html\"}");
+	if (0 < $count) { $lines = array_slice($lines, 0, $count); }
+	file_put_contents($tpl, implode("\n", $lines), LOCK_EX);
+}
+
+
+
+#
+# Update the archive indices
+#
+
+# Update the month listing
+$li = array();
+foreach ($list[2] as $m) {
+	$li[] = "\t<li><a href=\"$m\">" . substr($m, 1) . "</a></li>\n";
+}
+file_put_contents("{$smarty->template_dir}/.months.html",
+	"<ul id=\"months\">\n" . implode('', $li) . "</ul>\n", LOCK_EX);
+	
+
+# Update the tag listing
+if (file_exists("{$smarty->template_dir}/.tags.html")) {
+	$xml = simplexml_load_file("{$smarty->template_dir}/.tags.html");
+	foreach ($xml->li as $li) { $tags[] = (string)$li->a; }
+}
+$tags = array_unique($tags);
+sort($tags);
+$li = array();
+foreach ($tags as $t) {
+	$li[] = "\t<li><a href=\"/tags/$t\">$t</a></li>\n";
+}
+file_put_contents("{$smarty->template_dir}/.tags.html",
+	"<ul id=\"tags\">\n" . implode('', $li) . "</ul>\n", LOCK_EX);
+
+
+
+# Great success!
+echo "[publish] published the post at\n[publish] http://{$FQDN}{$path}/$file\n";
+exit(0);
