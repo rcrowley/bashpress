@@ -15,8 +15,8 @@ INSTALLATION
 	setup a VirtualHost rooted at <bashpress>/public.  Create and make
 	writable by the webserver <bashpress>/.templates.
 
-	You may need to modify the PHP include_path variable, defined in
-	httpd.conf, to point to your Smarty installation.
+	Modify the PHP include_path variable, defined in httpd.conf, to point
+	to your Bashpress and Smarty installations.
 
 DEPENDENCIES
 	PHP <http://php.net/>
