@@ -19,7 +19,7 @@ if ('POST' == $_SERVER['REQUEST_METHOD']) {
 
 	$date = date('Y-m-d g:i a');
 
-	file_put_contents("{$smarty->template_dir}/$comment",
+	file_put_contents("{$smarty->template_dir}/.posts/$comment",
 		"\t<li>\n$text\t\t<p>&mdash; $author &mdash; $date</p>\n\t</li>\n\n",
 		FILE_APPEND | LOCK_EX);
 

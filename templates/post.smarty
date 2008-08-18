@@ -13,7 +13,7 @@
 {$body}
 </div>
 {ldelim}if $page{rdelim}
-<ol>
+<ol class="comments">
 {ldelim}include file=".posts{$path}/.{$file}.html"{rdelim}
 </ol>
 {ldelim}include file="_comment.html"{rdelim}
