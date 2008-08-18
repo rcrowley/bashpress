@@ -3,3 +3,7 @@ Pull comment HTML out to a Smarty template.
 Parameterize date formats into config.php.
 
 Post counts in archive pages and tag pages.
+
+Make bin/republish and bin/preview scripts.
+
+Validate post HTML before publishing and republishing.

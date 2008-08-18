@@ -1,0 +1,49 @@
+#!/usr/bin/php
+<?php
+
+#
+# The only argument must be a valid and existing post
+#
+
+if (2 != sizeof($argv)) { 
+	echo "Usage: {$argv[0]} <post>\n";
+	exit(1);
+}
+if (!file_exists($argv[1])) {
+	echo "[publish] can't find a post at {$argv[1]}\n";
+	exit(1);
+}
+$base = realpath(dirname(__FILE__) . '/../posts');
+if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
+	echo "[publish] can only publish from the posts/ directory\n";
+	exit(1);
+}
+
+require_once dirname(__FILE__) . '/../include/init.php';
+
+
+
+#
+# Rewrite the post in all its various forms
+#
+
+# Rewrite the post's Smarty template
+list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
+	file_get_contents($argv[1]), 3);
+$tags = preg_split('!\s+!', $tags);
+assign('path');
+assign('file');
+assign('title');
+assign('tags');
+assign('body');
+$path = str_replace(realpath(dirname(__FILE__) . '/../posts'), '',
+	realpath($argv[1]));
+file_put_contents("{$smarty->template_dir}/.posts$path.html",
+	$smarty->fetch('post.smarty'), LOCK_EX);
+echo "[publish] recreated the post's Smarty template\n";
+
+
+
+# Great success!
+echo "[publish] republished the post at\n[publish] http://{$FQDN}{$path}\n";
+exit(0);
