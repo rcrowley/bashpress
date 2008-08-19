@@ -1,7 +1,5 @@
 <?php
 
-$SALT = 'the salt is deadbeef';
-
 # Site parameters
 $TITLE = 'Richard Crowley&#8217;s blog';
 $FQDN = 'bashpress.rcrowley.org';

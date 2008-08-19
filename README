@@ -8,7 +8,7 @@ SYNOPSIS
 DESCRIPTION
 	Bashpress is a rebellion against browser-based blogging engines,
 	WYSIWYG editors, and relational databases.  It is command-line only,
-	has no user accounts, and doesn't use a database.  It loves Smarty [1].
+	has no user accounts, and doesn't use a database.  It loves Smarty.
 
 INSTALLATION
 	Download or checkout Bashpress.  Use the included httpd.conf file to
@@ -17,6 +17,11 @@ INSTALLATION
 
 	Modify the PHP include_path variable, defined in httpd.conf, to point
 	to your Bashpress and Smarty installations.
+
+	Modify <bashpress>/include/config.php to setup basic site and feed
+	parameters, especially your site's Fully Qualified Domain Name.
+	(Since Bashpress contains PHP code run outside of the webserver SAPI,
+	this variable must be provided by the user.)
 
 DEPENDENCIES
 	PHP <http://php.net/>
