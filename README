@@ -20,7 +20,7 @@ INSTALLATION
 
 DEPENDENCIES
 	PHP <http://php.net/>
-	Smarty <http://smarty.php.net/>
+	Smarty <http://smarty.net/>
 
 VERSION
 	0.1

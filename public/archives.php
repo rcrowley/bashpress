@@ -1,5 +1,7 @@
 <?php
 
+loadlib('blog_comment');
+
 $date = implode('/', $URL_PARTS);
 if (file_exists("{$smarty->template_dir}/.posts/$date.html")) {
 	assign('date');

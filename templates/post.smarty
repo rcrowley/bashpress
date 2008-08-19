@@ -14,11 +14,13 @@
 </div>
 {ldelim}if $page{rdelim}
 <div class="comments">
-<h1>Comments</h1>
+<h1>Comments <small>({ldelim}blog_comment_count{rdelim})</small></h1>
 <ol>
-{ldelim}include file=".posts{$path}/.{$file}.html"{rdelim}
+{ldelim}include file=".posts{$path}/.{$file}-comments.html"{rdelim}
 </ol>
 </div>
 {ldelim}include file="_comment.html"{rdelim}
 {ldelim}include file="_foot.html"{rdelim}
+{ldelim}else{rdelim}
+<p><a href="{$path}/{$file}#comments">Comments ({ldelim}blog_comment_count tpl=$smarty.template{rdelim})</a></p>
 {ldelim}/if{rdelim}

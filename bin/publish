@@ -135,12 +135,14 @@ foreach ($parts as $p) {
 
 
 #
-# Touch the post's comments file
+# Touch the post's comments files
 #
 
-touch("{$smarty->template_dir}/.posts$path/.$file.html");
-chmod("{$smarty->template_dir}/.posts$path/.$file.html", 0666);
-echo "[publish] touched the post's comments file\n";
+touch("{$smarty->template_dir}/.posts$path/.$file-comments.html");
+chmod("{$smarty->template_dir}/.posts$path/.$file-comments.html", 0666);
+touch("{$smarty->template_dir}/.posts$path/.$file-count");
+chmod("{$smarty->template_dir}/.posts$path/.$file-count", 0666);
+echo "[publish] touched the post's comments files\n";
 
 
 
