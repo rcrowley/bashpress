@@ -11,6 +11,9 @@
 {/foreach}
 </ul>
 {$body}
+{ldelim}if !$page{rdelim}
+<p><a href="{$path}/{$file}#comments">Comments ({ldelim}blog_comment_count tpl=$smarty.template{rdelim})</a></p>
+{ldelim}/if{rdelim}
 </div>
 {ldelim}if $page{rdelim}
 <div class="comments">
@@ -21,6 +24,4 @@
 </div>
 {ldelim}include file="_comment.html"{rdelim}
 {ldelim}include file="_foot.html"{rdelim}
-{ldelim}else{rdelim}
-<p><a href="{$path}/{$file}#comments">Comments ({ldelim}blog_comment_count tpl=$smarty.template{rdelim})</a></p>
 {ldelim}/if{rdelim}
