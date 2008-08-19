@@ -33,7 +33,7 @@ function blog_comment_count($params = false, $smarty = false) {
 		$parts = explode('/', $params['tpl']);
 		array_unshift($parts, $GLOBALS['smarty']->template_dir);
 		$file = array_pop($parts);
-		$parts[] = '.' . substr($file, 0, 1 - strrpos($file, '.')) . '-count';
+		$parts[] = '.' . substr($file, 0, strrpos($file, '.')) . '-count';
 		$_blog_comment_count = filesize(implode('/', $parts));
 	} else {
 		$_blog_comment_count = filesize(_blog_comment_base() . '-count');
