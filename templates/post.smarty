@@ -16,7 +16,7 @@
 {ldelim}/if{rdelim}
 </div>
 {ldelim}if $page{rdelim}
-<div class="comments">
+<div id="comments">
 <h1>Comments <small>({ldelim}blog_comment_count{rdelim})</small></h1>
 <ol>
 {ldelim}include file=".posts{$path}/.{$file}-comments.html"{rdelim}
