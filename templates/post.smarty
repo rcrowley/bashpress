@@ -3,8 +3,7 @@
 {ldelim}include file="_head.html"{rdelim}
 {ldelim}/if{rdelim}
 <div class="post">
-<h1><a href="{$path}/{$file}">{$title}</a>
-<small>{$smarty.now|date_format:"%Y/%m/%d"}</small></h1>
+<h1><a href="{$path}/{$file}">{$title}</a> <small>{$date}</small></h1>
 <ul class="tags">
 {foreach from=$tags item=tag}
 	<li><a href="/tags/{$tag}">{$tag}</a></li>
@@ -19,7 +18,7 @@
 <div id="comments">
 <h1>Comments <small>({ldelim}blog_comment_count{rdelim})</small></h1>
 <ol>
-{ldelim}include file=".posts{$path}/.{$file}-comments.html"{rdelim}
+{ldelim}include file=".posts{$path}/{$file}-comments.html"{rdelim}
 </ol>
 </div>
 {ldelim}include file="_comment.html"{rdelim}

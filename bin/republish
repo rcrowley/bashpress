@@ -27,16 +27,23 @@ require_once dirname(__FILE__) . '/../include/init.php';
 # Rewrite the post in all its various forms
 #
 
-# Rewrite the post's Smarty template
+# Get the path to the post
 $parts = explode('/', str_replace(
 	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
 $file = array_pop($parts);
 $path = '/' . implode('/', $parts);
+
+# Get the date stored at original publishing time
+$timestamp = strtotime(file_get_contents(
+	"{$smarty->template_dir}/.posts$path/$file-date"));
+
+# Rewrite the post's Smarty template
 list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
 	file_get_contents($argv[1]), 3);
 $tags = preg_split('!\s+!', $tags);
 assign('path');
 assign('file');
+assign('date', date($DATEFORMAT_POST, $timestamp));
 assign('title');
 assign('tags');
 assign('body');

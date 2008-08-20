@@ -138,11 +138,21 @@ foreach ($parts as $p) {
 # Touch the post's comments files
 #
 
-touch("{$smarty->template_dir}/.posts$path/.$file-comments.html");
-chmod("{$smarty->template_dir}/.posts$path/.$file-comments.html", 0666);
-touch("{$smarty->template_dir}/.posts$path/.$file-count");
-chmod("{$smarty->template_dir}/.posts$path/.$file-count", 0666);
+touch("{$smarty->template_dir}/.posts$path/$file-comments.html");
+chmod("{$smarty->template_dir}/.posts$path/$file-comments.html", 0666);
+touch("{$smarty->template_dir}/.posts$path/$file-count");
+chmod("{$smarty->template_dir}/.posts$path/$file-count", 0666);
 echo "[publish] touched the post's comments files\n";
+
+
+
+#
+# Save the post's publishing detailed date
+#
+
+$timestamp = time();
+file_put_contents("{$smarty->template_dir}/.posts$path/$file-date",
+	date('r', $timestamp), LOCK_EX);
 
 
 
@@ -156,6 +166,7 @@ list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
 $tags = preg_split('!\s+!', $tags);
 assign('path');
 assign('file');
+assign('date', date($DATEFORMAT_POST, $timestamp));
 assign('title');
 assign('tags');
 assign('body');
@@ -169,7 +180,7 @@ echo "[publish] updated the homepage\n";
 
 # Update the Atom feed
 $permalink = "http://{\$FQDN}$path/$file";
-$date = date('c');
+$date = date('c', $timestamp);
 $dom = new DOMDocument;
 $dom->load("{$smarty->template_dir}/.feed.atom");
 $feed = $dom->documentElement;

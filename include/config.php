@@ -9,3 +9,7 @@ $AUTHOR = 'Richard Crowley';
 assign('TITLE');
 assign('FQDN');
 assign('AUTHOR');
+
+# Date formats
+$DATEFORMAT_POST = 'Y/m/d';
+$DATEFORMAT_COMMENT = 'Y/m/d g:i a';
