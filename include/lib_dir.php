@@ -6,7 +6,7 @@ function dir_rscandir($dir, $all = true) {
 	$ls = array_diff(scandir($dir), array('.', '..'));
 	$out = array();
 	foreach ($ls as $l) {
-		if (is_dir("$dir/$l")) { $out[$l] = dir_rscandir("$dir/$l"); }
+		if (is_dir("$dir/$l")) { $out[$l] = dir_rscandir("$dir/$l", $all); }
 		else if ($all) { $out[$l] = false; }
 	}
 	return sizeof($out) ? $out : false;
