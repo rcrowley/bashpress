@@ -1,0 +1,26 @@
+#!/usr/bin/php
+<?php
+
+require_once dirname(__FILE__) . '/../include/init.php';
+loadlib('dir');
+
+# Get a list of posts and drafts
+$tree = dir_rscandir(dirname(__FILE__) . '/../posts', false);
+$list = end(dir_flatten($tree));
+
+# Narrow the list down to just drafts
+$drafts = array();
+foreach ($list as $l) {
+	if (file_exists("{$smarty->template_dir}/.posts$l.html")) { continue; }
+	$drafts[] = $l;
+}
+
+# Print the list or an "all clear"
+if (sizeof($drafts)) {
+	$posts = realpath(dirname(__FILE__) . '/../posts');
+	foreach ($drafts as $d) { echo "[drafts] $posts$d\n"; }
+} else {
+	echo "[drafts] no drafts found\n";
+}
+
+exit(0);

@@ -20,6 +20,7 @@ if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
 }
 
 require_once dirname(__FILE__) . '/../include/init.php';
+loadlib('dir');
 
 
 
@@ -87,36 +88,8 @@ foreach ($parts as $p) {
 # Create next and previous pointers in the directory tree
 #
 
-# Recursively walk the directory tree
-#   This special rscandir function will return a tree of only directories
-function rscandir($dir) {
-	$ls = array_diff(scandir($dir), array('.', '..'));
-	$out = array();
-	foreach ($ls as $l) {
-		if (is_dir("$dir/$l")) { $out[$l] = rscandir("$dir/$l"); }
-	}
-	return sizeof($out) ? $out : false;
-}
-$tree = rscandir("{$smarty->template_dir}/.posts");
-
-# Flatten the walked directory tree at every depth
-function flatten($tree, $path = '', $depth = 1) {
-	$list = array();
-	foreach ($tree as $dir => $subtree) {
-		$list[$depth][] = "$path/$dir";
-		if ($subtree) {
-			$sublist = flatten($subtree, "$path/$dir", $depth + 1);
-			foreach ($sublist as $d => $l) {
-				if (!is_array($list[$d])) { $list[$d] = array(); }
-				$list[$d] = array_merge($list[$d], $l);
-			}
-		}
-	}
-	return $list;
-}
-$list = flatten($tree);
-
-# Create next and previous pointers
+$tree = dir_rscandir("{$smarty->template_dir}/.posts", false);
+$list = dir_flatten($tree);
 $depth = 0;
 $path = '';
 foreach ($parts as $p) {
