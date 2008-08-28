@@ -240,5 +240,5 @@ file_put_contents("{$smarty->template_dir}/.tags.html",
 
 
 # Great success!
-echo "[publish] published the post at\n[publish] http://{$FQDN}{$path}/$file\n";
+echo "[publish] published the post at\n[publish] http://$FQDN$path/$file\n";
 exit(0);

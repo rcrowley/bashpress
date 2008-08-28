@@ -55,5 +55,5 @@ echo "[publish] recreated the post's Smarty template\n";
 
 
 # Great success!
-echo "[publish] republished the post at\n[publish] http://{$FQDN}{$path}\n";
+echo "[publish] republished the post at\n[publish] http://$FQDN$path/$file\n";
 exit(0);
