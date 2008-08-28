@@ -9,3 +9,15 @@ Make bin/republish and bin/preview scripts.
 Validate post HTML before publishing and republishing.
 
 Newer/Older links for posts, too.
+
+
+
+From paper:
+CLI comment manager
+Email-to-publish gateway
+Smart quotes
+Markdown for comments (posts?)
+Link any links posted in comments
+Email when comment is posted
+Wordpress importer
+Links for individual comments
