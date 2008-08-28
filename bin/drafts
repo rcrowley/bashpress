@@ -5,7 +5,7 @@ require_once dirname(__FILE__) . '/../include/init.php';
 loadlib('dir');
 
 # Get a list of posts and drafts
-$tree = dir_rscandir(dirname(__FILE__) . '/../posts', false);
+$tree = dir_rscandir(dirname(__FILE__) . '/../posts', true);
 $list = end(dir_flatten($tree));
 
 # Narrow the list down to just drafts

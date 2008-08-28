@@ -1,6 +1,7 @@
 <?php
 
 # Save a submitted comment
+#   TODO: Use a Smarty template for this HTML
 function blog_comment_save($name, $website, $text) {
 	$base = _blog_comment_base();
 
@@ -16,10 +17,10 @@ function blog_comment_save($name, $website, $text) {
 
 	$date = date($GLOBALS['DATEFORMAT_COMMENT']);
 
-	file_put_contents("$base-comments.html",
+	file_put_contents("$base.comments.html",
 		"\t<li>\n$text\t\t<p>&mdash; $author &mdash; $date</p>\n\t</li>\n\n",
 		FILE_APPEND | LOCK_EX);
-	file_put_contents("$base-count",
+	file_put_contents("$base.count",
 		'.', FILE_APPEND | LOCK_EX);
 
 }
@@ -32,9 +33,9 @@ function blog_comment_count($params = false, $smarty = false) {
 		$parts = explode('/', $params['tpl']);
 		array_unshift($parts, $GLOBALS['smarty']->template_dir);
 		$file = array_pop($parts);
-		$parts[] = substr($file, 0, strrpos($file, '.')) . '-count';
+		$parts[] = substr($file, 0, strrpos($file, '.')) . '.count';
 		return filesize(implode('/', $parts));
-	} else { return filesize(_blog_comment_base() . '-count'); }
+	} else { return filesize(_blog_comment_base() . '.count'); }
 }
 
 # Get the base of comment file names

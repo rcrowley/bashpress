@@ -6,7 +6,8 @@
 
 $routes = array(
 
-	# Individual posts
+	# Individual posts and secret previews
+	'/([0-9]{4})/([0-9]{2})/([0-9]{2})/([^./]+)/([^.]+)' => 'post.php',
 	'/([0-9]{4})/([0-9]{2})/([0-9]{2})/([^.]+)' => 'post.php',
 
 	# Tags
@@ -19,6 +20,7 @@ $routes = array(
 
 	# Atom feed
 	'/feed' => 'feed.php',
+
 
 	'/' => 'index.php',
 

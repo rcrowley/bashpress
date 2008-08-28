@@ -15,12 +15,14 @@
 {ldelim}/if{rdelim}
 </div>
 {ldelim}if $page{rdelim}
+{ldelim}if !$preview{rdelim}
 <div id="comments">
 <h1>Comments <small>({ldelim}blog_comment_count{rdelim})</small></h1>
 <ol>
-{ldelim}include file=".posts{$path}/{$file}-comments.html"{rdelim}
+{ldelim}include file=".posts{$path}/{$file}.comments.html"{rdelim}
 </ol>
 </div>
 {ldelim}include file="_comment.html"{rdelim}
+{ldelim}/if{rdelim}
 {ldelim}include file="_foot.html"{rdelim}
 {ldelim}/if{rdelim}

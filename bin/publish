@@ -21,6 +21,7 @@ if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
 
 require_once dirname(__FILE__) . '/../include/init.php';
 loadlib('dir');
+loadlib('blog_publish');
 
 
 
@@ -32,33 +33,30 @@ loadlib('dir');
 $path = str_replace(realpath(dirname(__FILE__) . '/../posts'), '',
 	realpath($argv[1]));
 if (file_exists("{$smarty->template_dir}/.posts$path.html")) {
-	echo "[publish] can't republish {$argv[1]}\n";
+	echo "[publish] can't republish {$argv[1]}\n[publish] try bin/republish";
 	exit(1);
 }
 
 
 
 #
-# Move this post up to today it necessary
+# Move this post up to today if necessary
 #
 
 $parts = explode('/', str_replace(
 	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
 $file = array_pop($parts);
 if (date('Y-m-d') != implode('-', $parts)) {
-	$newparts = array(date('Y'), date('m'), date('d'));
-	$path = '';
-	foreach ($newparts as $p) {
-		$path .= "/$p";
-		if (!is_dir(dirname(__FILE__) . "/../posts/$path")) {
-			mkdir(dirname(__FILE__) . "/../posts/$path", 0755);
-		}
-	}
-	rename($argv[1], dirname(__FILE__) . "/../posts/$path/$file");
+	$path = blog_publish_dir(dirname(__FILE__) . '/../posts',
+		array(date('Y'), date('m'), date('d')));
+	rename($argv[1], dirname(__FILE__) . "/../posts$path/$file");
+
+	# Delete empty directories in the date hierarchy to keep things tidy
 	$ii = sizeof($parts);
 	for ($i = 0; $i < $ii; ++$i) {
 		if (!@rmdir($argv[1] = dirname($argv[1]))) { break; }
 	}
+
 	$argv[1] = dirname(__FILE__) . "/../posts/$path/$file";
 }
 
@@ -68,19 +66,10 @@ if (date('Y-m-d') != implode('-', $parts)) {
 # Create directories for the <year>/<month>/<day>
 #
 
-if (!is_dir("{$smarty->template_dir}/.posts")) {
-	mkdir("{$smarty->template_dir}/.posts", 0755);
-}
 $parts = explode('/', str_replace(
 	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
 $file = array_pop($parts);
-$path = '';
-foreach ($parts as $p) {
-	$path .= "/$p";
-	if (!is_dir("{$smarty->template_dir}/.posts$path")) {
-		mkdir("{$smarty->template_dir}/.posts$path", 0755);
-	}
-}
+$path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
 
 
 
@@ -111,10 +100,10 @@ foreach ($parts as $p) {
 # Touch the post's comments files
 #
 
-touch("{$smarty->template_dir}/.posts$path/$file-comments.html");
-chmod("{$smarty->template_dir}/.posts$path/$file-comments.html", 0666);
-touch("{$smarty->template_dir}/.posts$path/$file-count");
-chmod("{$smarty->template_dir}/.posts$path/$file-count", 0666);
+touch("{$smarty->template_dir}/.posts$path/$file.comments.html");
+chmod("{$smarty->template_dir}/.posts$path/$file.comments.html", 0666);
+touch("{$smarty->template_dir}/.posts$path/$file.count");
+chmod("{$smarty->template_dir}/.posts$path/$file.count", 0666);
 echo "[publish] touched the post's comments files\n";
 
 
@@ -124,8 +113,16 @@ echo "[publish] touched the post's comments files\n";
 #
 
 $timestamp = time();
-file_put_contents("{$smarty->template_dir}/.posts$path/$file-date",
+file_put_contents("{$smarty->template_dir}/.posts$path/$file.date",
 	date('r', $timestamp), LOCK_EX);
+
+
+
+#
+# Delete the post's preview
+#
+
+@unlink("{$smarty->template_dir}/.posts$path/$file.preview.html");
 
 
 

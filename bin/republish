@@ -3,6 +3,7 @@
 
 #
 # The only argument must be a valid and existing post
+#   TODO: Make sure it was previously published
 #
 
 if (2 != sizeof($argv)) { 
@@ -35,7 +36,7 @@ $path = '/' . implode('/', $parts);
 
 # Get the date stored at original publishing time
 $timestamp = strtotime(file_get_contents(
-	"{$smarty->template_dir}/.posts$path/$file-date"));
+	"{$smarty->template_dir}/.posts$path/$file.date"));
 
 # Rewrite the post's Smarty template
 list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
@@ -47,7 +48,7 @@ assign('date', date($DATEFORMAT_POST, $timestamp));
 assign('title');
 assign('tags');
 assign('body');
-file_put_contents("{$smarty->template_dir}/.posts$path/$file.html",
+file_put_contents("{$smarty->template_dir}/.posts$path/$file.preview.html",
 	$smarty->fetch('post.smarty'), LOCK_EX);
 echo "[publish] recreated the post's Smarty template\n";
 
