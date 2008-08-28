@@ -1,0 +1,44 @@
+#!/usr/bin/env php
+<?php
+
+# Check out the arguments
+if (5 != sizeof($argv)) {
+	echo "Usage: {$argv[0]} <db-host> <db-user> <db-pass> <db-name>\n";
+	exit(1);
+}
+list(, $db_host, $db_user, $db_pass, $db_name) = $argv;
+
+# Open a database connection
+$link = mysql_connect($db_host, $db_user, $db_pass);
+if (!is_resource($link)) {
+	echo "[wordpress] error connecting to databse\n";
+	exit(1);
+}
+mysql_select_db($db_name, $link);
+
+# Get every post from newest to oldest
+$posts = mysql_query("SELECT
+	ID, post_date, post_name, post_title, post_content
+	FROM wp_posts
+	WHERE post_type = 'post' ORDER BY post_date DESC;", $link);
+while ($post = mysql_fetch_assoc($posts)) {
+	$path = date('/Y/m/d', strtotime($post['post_date']));
+	$file = $post['post_name'];
+	$title = $post['post_title'];
+	$body = $post['post_content'];
+
+	# Extract tags from the terms tables
+	$terms = mysql_query("SELECT t.slug FROM wp_term_relationships tr JOIN wp_term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id JOIN wp_terms t ON tt.term_id = t.term_id WHERE tr.object_id = '{$post['ID']}';", $link);
+	$tags = array();
+	while ($term = mysql_fetch_assoc($terms)) { $tags[] = $term['slug']; }
+
+	# Get all of the comments
+	#   Write comments into the .comments.html file and the total into .count
+
+	# Write the post's date into the .date file
+
+	# Write the post's Smarty template
+
+	# Append this post to archive and tag pages
+
+}
