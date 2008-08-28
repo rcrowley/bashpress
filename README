@@ -12,8 +12,8 @@ DESCRIPTION
 
 INSTALLATION
 	Download or checkout Bashpress.  Use the included httpd.conf file to
-	setup a VirtualHost rooted at <bashpress>/public.  Create and make
-	writable by the webserver <bashpress>/.templates.
+	setup a VirtualHost rooted at <bashpress>/public.  Create
+	<bashpress>/.templates and make it writable by the webserver.
 
 	Modify the PHP include_path variable, defined in httpd.conf, to point
 	to your Bashpress and Smarty installations.
