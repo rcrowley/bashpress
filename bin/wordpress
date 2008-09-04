@@ -8,37 +8,99 @@ if (5 != sizeof($argv)) {
 }
 list(, $db_host, $db_user, $db_pass, $db_name) = $argv;
 
+require_once dirname(__FILE__) . '/../include/init.php';
+loadlib('blog_publish');
+loadlib('blog_comment');
+
 # Open a database connection
 $link = mysql_connect($db_host, $db_user, $db_pass);
 if (!is_resource($link)) {
-	echo "[wordpress] error connecting to databse\n";
+	echo "[wordpress] error connecting to database\n";
 	exit(1);
 }
 mysql_select_db($db_name, $link);
 
 # Get every post from newest to oldest
-$posts = mysql_query("SELECT
+$posts_q = mysql_query("SELECT
 	ID, post_date, post_name, post_title, post_content
 	FROM wp_posts
-	WHERE post_type = 'post' ORDER BY post_date DESC;", $link);
-while ($post = mysql_fetch_assoc($posts)) {
-	$path = date('/Y/m/d', strtotime($post['post_date']));
+	WHERE post_type = 'post' AND post_status = 'publish'
+	ORDER BY post_date DESC;", $link);
+while ($post = mysql_fetch_assoc($posts_q)) {
+	$timestamp = strtotime($post['post_date']);
 	$file = $post['post_name'];
 	$title = $post['post_title'];
 	$body = $post['post_content'];
 
+	# Create directories for the <year>/<month>/<day>
+	$parts = array(
+		date('Y', $timestamp),
+		date('m', $timestamp),
+		date('d', $timestamp)
+	);
+	$path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
+
 	# Extract tags from the terms tables
-	$terms = mysql_query("SELECT t.slug FROM wp_term_relationships tr JOIN wp_term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id JOIN wp_terms t ON tt.term_id = t.term_id WHERE tr.object_id = '{$post['ID']}';", $link);
+	$tags_q = mysql_query("SELECT t.slug
+		FROM wp_term_relationships tr JOIN wp_term_taxonomy tt
+		ON tr.term_taxonomy_id = tt.term_taxonomy_id
+		JOIN wp_terms t ON tt.term_id = t.term_id
+		WHERE tr.object_id = '{$post['ID']}';", $link);
 	$tags = array();
-	while ($term = mysql_fetch_assoc($terms)) { $tags[] = $term['slug']; }
+	while ($tag = mysql_fetch_assoc($tags_q)) { $tags[] = $tag['slug']; }
 
 	# Get all of the comments
 	#   Write comments into the .comments.html file and the total into .count
+	$URL_PARTS = array_merge($parts, array($file));
+	touch("{$smarty->template_dir}/.posts$path/$file.comments.html");
+	chmod("{$smarty->template_dir}/.posts$path/$file.comments.html", 0666);
+	touch("{$smarty->template_dir}/.posts$path/$file.count");
+	chmod("{$smarty->template_dir}/.posts$path/$file.count", 0666);
+	$comments_q = mysql_query("SELECT
+		comment_author, comment_author_url, comment_date, comment_content
+		FROM wp_comments WHERE comment_post_ID = '{$post['ID']}'
+		ORDER BY comment_date ASC;", $link);
+	while ($comment = mysql_fetch_assoc($comments_q)) {
+		blog_comment_save(
+			$comment['comment_author'],
+			$comment['comment_author_url'],
+			$comment['comment_content'],
+			$comment['comment_date']
+		);
+	}
 
 	# Write the post's date into the .date file
+	file_put_contents("{$smarty->template_dir}/.posts$path/$file.date",
+		date('r', $timestamp), LOCK_EX);
 
 	# Write the post's Smarty template
+	blog_publish_smarty($path, $file, $timestamp, $title, $tags,
+		"<p>" . implode("</p>\n<p>", preg_split("!(?:\r?\n){2,}!",
+		$body)) . "</p>\n");
 
-	# Append this post to archive and tag pages
+	# Append to archive and tag pages
+	$archive = '';
+	foreach ($parts as $p) {
+		$archive .= "/$p";
+		file_put_contents("{$smarty->template_dir}/.posts$archive.html",
+			"\n{include file=\".posts$path/$file.html\"}",
+			FILE_APPEND | LOCK_EX);
+	}
+	foreach ($tags as $t) {
+		file_put_contents("{$smarty->template_dir}/.tags/$t.html",
+			"\n{include file=\".posts$path/$file.html\"}",
+			FILE_APPEND | LOCK_EX);
+	}
 
+	# Update archive and tag indices
+	blog_publish_months();
+	blog_publish_tags($tags);
+
+	# Create newer/older pointers
+	#   Note that this works in the opposite direction as bin/publish
+	blog_publish_pointers($parts, false);
+
+	echo "[wordpress] published $path/$file\n";
 }
+echo "[wordpress] done\n";
+exit(0);

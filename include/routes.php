@@ -7,8 +7,8 @@
 $routes = array(
 
 	# Individual posts and secret previews
-	'/(\d{4})/(\d{2})/(\d{2})/([^./]+)/([^.]+)' => 'post.php',
-	'/(\d{4})/(\d{2})/(\d{2})/([^.]+)' => 'post.php',
+	'/(\d{4})/(\d{2})/(\d{2})/([^./]+)/([^./]+)' => 'post.php',
+	'/(\d{4})/(\d{2})/(\d{2})/([^./]+)' => 'post.php',
 
 	# Tags
 	'/tags/([^.]+)' => 'tags.php',

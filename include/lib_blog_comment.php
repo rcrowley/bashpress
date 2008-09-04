@@ -2,7 +2,7 @@
 
 # Save a submitted comment
 #   TODO: Use a Smarty template for this HTML
-function blog_comment_save($name, $website, $text) {
+function blog_comment_save($name, $website, $text, $date = false) {
 	$base = _blog_comment_base();
 
 	$text = "\t\t<p>" . implode("</p>\n<p>", preg_split("!(?:\r?\n){2,}!",
@@ -15,7 +15,9 @@ function blog_comment_save($name, $website, $text) {
 			strip_tags($name) . '</a>';
 	} else { $author = strip_tags($name); }
 
-	$date = date($GLOBALS['DATEFORMAT_COMMENT']);
+	# Take either the passed date or now
+	$date = date($GLOBALS['DATEFORMAT_COMMENT'],
+		$date ? strtotime($date) : time());
 
 	file_put_contents("$base.comments.html",
 		"\t<li>\n$text\t\t<p>&mdash; $author &mdash; $date</p>\n\t</li>\n\n",

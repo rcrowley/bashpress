@@ -2,6 +2,7 @@
 
 # Recursively walk the directory tree
 #   This special rscandir function will return a tree of only directories
+#   TODO: Don't count directories that only contain *.preview.html files
 function dir_rscandir($dir, $all = true) {
 	$ls = array_diff(scandir($dir), array('.', '..'));
 	$out = array();

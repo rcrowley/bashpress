@@ -4,6 +4,6 @@
 	<link href="http://{$FQDN}/feed" rel="self"/>
 	<link href="http://{$FQDN}/" rel="alternate"/>
 	<id>http://{$FQDN}/feed</id>
-	<updated>2008-08-17T14:49:38-07:00</updated>
+	<updated>2008-09-03T22:57:08-07:00</updated>
 	<author><name>{$AUTHOR}</name></author>
 </feed>

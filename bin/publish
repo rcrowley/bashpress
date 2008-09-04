@@ -1,10 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-#
 # The only argument must be a valid and existing post
-#
-
 if (2 != sizeof($argv)) { 
 	echo "Usage: {$argv[0]} <post>\n";
 	exit(1);
@@ -23,13 +20,8 @@ require_once dirname(__FILE__) . '/../include/init.php';
 loadlib('dir');
 loadlib('blog_publish');
 
-
-
-#
 # Check if this post has already been published
 #   Don't allow republishing, instead, send them to the bin/republish script
-#
-
 $path = str_replace(realpath(dirname(__FILE__) . '/../posts'), '',
 	realpath($argv[1]));
 if (file_exists("{$smarty->template_dir}/.posts$path.html")) {
@@ -37,12 +29,7 @@ if (file_exists("{$smarty->template_dir}/.posts$path.html")) {
 	exit(1);
 }
 
-
-
-#
 # Move this post up to today if necessary
-#
-
 $parts = explode('/', str_replace(
 	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
 $file = array_pop($parts);
@@ -60,68 +47,28 @@ if (date('Y-m-d') != implode('-', $parts)) {
 	$argv[1] = dirname(__FILE__) . "/../posts/$path/$file";
 }
 
-
-
-#
 # Create directories for the <year>/<month>/<day>
-#
-
 $parts = explode('/', str_replace(
 	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
 $file = array_pop($parts);
 $path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
 
+# Create newer/older pointers in the directory tree
+blog_publish_pointers($parts);
 
-
-#
-# Create next and previous pointers in the directory tree
-#
-
-$tree = dir_rscandir("{$smarty->template_dir}/.posts", false);
-$list = dir_flatten($tree);
-$depth = 0;
-$path = '';
-foreach ($parts as $p) {
-	++$depth;
-	$path .= "/$p";
-	if ($i = array_search($path, $list[$depth])) {
-		--$i;
-		file_put_contents("{$smarty->template_dir}/.posts$path/older",
-			$list[$depth][$i]);
-		file_put_contents(
-			"{$smarty->template_dir}/.posts{$list[$depth][$i]}/newer",
-			$path);
-	}
-}
-
-
-
-#
 # Touch the post's comments files
-#
-
 touch("{$smarty->template_dir}/.posts$path/$file.comments.html");
 chmod("{$smarty->template_dir}/.posts$path/$file.comments.html", 0666);
 touch("{$smarty->template_dir}/.posts$path/$file.count");
 chmod("{$smarty->template_dir}/.posts$path/$file.count", 0666);
 echo "[publish] touched the post's comments files\n";
 
-
-
-#
 # Save the post's publishing detailed date
-#
-
 $timestamp = time();
 file_put_contents("{$smarty->template_dir}/.posts$path/$file.date",
 	date('r', $timestamp), LOCK_EX);
 
-
-
-#
 # Delete the post's preview
-#
-
 @unlink("{$smarty->template_dir}/.posts$path/$file.preview.html");
 
 
@@ -134,14 +81,7 @@ file_put_contents("{$smarty->template_dir}/.posts$path/$file.date",
 list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
 	file_get_contents($argv[1]), 3);
 $tags = preg_split('!\s+!', $tags);
-assign('path');
-assign('file');
-assign('date', date($DATEFORMAT_POST, $timestamp));
-assign('title');
-assign('tags');
-assign('body');
-file_put_contents("{$smarty->template_dir}/.posts$path/$file.html",
-	$smarty->fetch('post.smarty'), LOCK_EX);
+blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body);
 echo "[publish] created the post's Smarty template\n";
 
 # Update the homepage
@@ -208,34 +148,9 @@ function prepend($tpl, $count = 0) {
 	file_put_contents($tpl, implode("\n", $lines), LOCK_EX);
 }
 
-
-
-#
 # Update the archive indices
-#
-
-# Update the month listing
-$li = array();
-foreach ($list[2] as $m) {
-	$li[] = "\t<li><a href=\"$m\">" . substr($m, 1) . "</a></li>\n";
-}
-file_put_contents("{$smarty->template_dir}/.months.html",
-	"<ul id=\"months\">\n" . implode('', $li) . "</ul>\n", LOCK_EX);
-	
-
-# Update the tag listing
-if (file_exists("{$smarty->template_dir}/.tags.html")) {
-	$xml = simplexml_load_file("{$smarty->template_dir}/.tags.html");
-	foreach ($xml->li as $li) { $tags[] = (string)$li->a; }
-}
-$tags = array_unique($tags);
-sort($tags);
-$li = array();
-foreach ($tags as $t) {
-	$li[] = "\t<li><a href=\"/tags/$t\">$t</a></li>\n";
-}
-file_put_contents("{$smarty->template_dir}/.tags.html",
-	"<ul id=\"tags\">\n" . implode('', $li) . "</ul>\n", LOCK_EX);
+blog_publish_months();
+blog_publish_tags($tags);
 
 
 
