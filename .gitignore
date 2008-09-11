@@ -1,4 +1,5 @@
 posts
+templates/.feed.atom
 templates/.index.html
 templates/.months.html
 templates/.tags.html
