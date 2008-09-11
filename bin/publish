@@ -92,7 +92,19 @@ echo "[publish] updated the homepage\n";
 $permalink = "http://{\$FQDN}$path/$file";
 $date = date('c', $timestamp);
 $dom = new DOMDocument;
-$dom->load("{$smarty->template_dir}/.feed.atom");
+if (file_exists("{$smarty->template_dir}/.feed.atom")) {
+	$dom->load("{$smarty->template_dir}/.feed.atom");
+} else {
+	$dom->loadXML('<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>{$TITLE}</title>
+	<link href="http://{$FQDN}/feed" rel="self"/>
+	<link href="http://{$FQDN}/" rel="alternate"/>
+	<id>http://{$FQDN}/feed</id>
+	<updated>2008-09-03T23:17:43-07:00</updated>
+	<author><name>{$AUTHOR}</name></author>
+</feed>');
+}
 $feed = $dom->documentElement;
 $updated = $feed->getElementsByTagName('updated')->item(0);
 $updated->removeChild($updated->firstChild);

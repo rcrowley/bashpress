@@ -1,10 +1,8 @@
+Generate templates/.feed.atom if it doesn't exist so we can take it out of Git.
+
 Pull comment HTML out to a Smarty template.
 
-Parameterize date formats into config.php.
-
 Post counts in archive pages and tag pages.
-
-Make bin/republish and bin/preview scripts.
 
 Validate post HTML before publishing and republishing.
 
@@ -19,5 +17,4 @@ Smart quotes
 Markdown for comments (posts?)
 Link any links posted in comments
 Email when comment is posted
-Wordpress importer
 Links for individual comments
