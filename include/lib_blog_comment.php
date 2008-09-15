@@ -5,8 +5,9 @@
 function blog_comment_save($name, $website, $text, $date = false) {
 	$base = _blog_comment_base();
 
+	# TODO: Maybe allow some HTML instead of mercilessly stripping tags
 	$text = "\t\t<p>" . implode("</p>\n<p>", preg_split("!(?:\r?\n){2,}!",
-		strip_tags($text))) . "</p>\n";
+		strip_tags(trim($text)))) . "</p>\n";
 
 	# TODO: Turn links into <a href...
 
