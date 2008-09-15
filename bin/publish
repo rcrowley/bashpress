@@ -25,7 +25,7 @@ loadlib('blog_publish');
 $path = str_replace(realpath(dirname(__FILE__) . '/../posts'), '',
 	realpath($argv[1]));
 if (file_exists("{$smarty->template_dir}/.posts$path.html")) {
-	echo "[publish] can't republish {$argv[1]}\n[publish] try bin/republish";
+	echo "[publish] can't republish {$argv[1]}\n[publish] try bin/republish\n";
 	exit(1);
 }
 
