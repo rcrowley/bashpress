@@ -5,26 +5,37 @@
 function blog_comment_save($name, $website, $text, $date = false) {
 	$base = _blog_comment_base();
 
+	# Sanitize input
 	# TODO: Maybe allow some HTML instead of mercilessly stripping tags
-	$text = "\t\t<p>" . implode("</p>\n<p>", preg_split("!(?:\r?\n){2,}!",
-		strip_tags(trim($text)))) . "</p>\n";
-
 	# TODO: Turn links into <a href...
+	$name = strip_tags(trim($name));
+	$website = strip_tags(trim($website));
+	$text = strip_tags(trim($text));
 
-	if (preg_match('!https?://.!', $website)) {
-		$author = '<a href="' . strip_tags($website) . '">' .
-			strip_tags($name) . '</a>';
-	} else { $author = strip_tags($name); }
+	# HTMLize
+	$html = "\t\t<p>" . implode("</p>\n<p>",
+		preg_split("!(?:\r?\n){2,}!", $text)) . "</p>\n";
+	if (preg_match('!^https?://.!', $website)) {
+		$link = "<a href=\"$website\">$name</a>";
+	} else { $link = $name; }
 
 	# Take either the passed date or now
 	$date = date($GLOBALS['DATEFORMAT_COMMENT'],
 		$date ? strtotime($date) : time());
 
+	# Save the comment
 	file_put_contents("$base.comments.html",
-		"\t<li>\n$text\t\t<p>&mdash; $author &mdash; $date</p>\n\t</li>\n\n",
+		"\t<li>\n$html\t\t<p>&mdash; $link &mdash; $date</p>\n\t</li>\n\n",
 		FILE_APPEND | LOCK_EX);
 	file_put_contents("$base.count",
 		'.', FILE_APPEND | LOCK_EX);
+
+	# Email the site owner
+	global $FQDN;
+	mail($GLOBALS['MAIL'], 'New comment!',
+		"Post: http://$FQDN{$GLOBALS['URL']}\r\n\r\n" .
+		"Name: $name\r\nWebsite: $website\r\n\r\n$text\r\n",
+		"From: Bashpress <bashpress@$FQDN>\r\n");
 
 }
 

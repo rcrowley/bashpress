@@ -4,8 +4,9 @@
 $TITLE = 'Richard Crowley&#8217;s blog';
 $FQDN = 'bashpress.rcrowley.org';
 $AUTHOR = 'Richard Crowley';
+$MAIL = 'r@rcrowley.org';
 
-# Expose site parameters to the templates
+# Expose some site parameters to the templates
 assign('TITLE');
 assign('FQDN');
 assign('AUTHOR');
