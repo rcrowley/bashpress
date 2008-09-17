@@ -3,8 +3,12 @@
 loadlib('blog_comment');
 
 # Save the new comment and update the template
-if ('POST' == $_SERVER['REQUEST_METHOD']) {
+if ('POST' == $_SERVER['REQUEST_METHOD'] && 'qwerty' == $_POST['test']) {
 	blog_comment_save($_POST['name'], $_POST['website'], $_POST['text']);
+	unset($_POST['test']);
+	unset($_POST['name']);
+	unset($_POST['website']);
+	unset($_POST['text']);
 }
 
 # Check the hash if this is supposed to be a post preview
