@@ -2,6 +2,16 @@
 
 loadlib('dir');
 
+# Clean up a string for a Smarty template
+#   The argument should be a string or an array
+function blog_publish_sanitize($dirty) {
+	return str_replace(
+		array('{', '}', '<<<---THIS-IS-SPECIAL--->>>'),
+		array('<<<---THIS-IS-SPECIAL--->>>', '{rdelim}', '{ldelim}'),
+		$dirty
+	);
+}
+
 # Write the post's Smarty template
 #   The "special" string is safe because you should be escaping your
 #   HTML anyway
@@ -9,12 +19,9 @@ function blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body) {
 	assign('path');
 	assign('file');
 	assign('date', date($GLOBALS['DATEFORMAT_POST'], $timestamp));
-	$dirty = array('{', '}', '<<<---THIS-IS-SPECIAL--->>>');
-	$clean = array('<<<---THIS-IS-SPECIAL--->>>', '{rdelim}',
-		'{ldelim}');
-	assign('title', str_replace($dirty, $clean, $title));
-	assign('tags', str_replace($dirty, $clean, $tags));
-	assign('body', str_replace($dirty, $clean, $body));
+	assign('title', blog_publish_sanitize($title));
+	assign('tags', blog_publish_sanitize($tags));
+	assign('body', blog_publish_sanitize($body));
 	global $smarty;
 	file_put_contents("{$smarty->template_dir}/.posts$path/$file.html",
 		$smarty->fetch('post.smarty'), LOCK_EX);

@@ -125,7 +125,8 @@ $entry->appendChild($dom->createElement('updated', $date));
 $author = $dom->createElement('author');
 $author->appendChild($dom->createElement('name', '{$AUTHOR}'));
 $entry->appendChild($author);
-$content = $dom->createElement('content', htmlspecialchars($body));
+$content = $dom->createElement('content',
+	htmlspecialchars(blog_publish_sanitize($body)));
 $content->setAttribute('type', 'html');
 $entry->appendChild($content);
 if ($entries->length) { $feed->insertBefore($entry, $entries->item(0)); }
