@@ -1,6 +1,6 @@
 all:
-	echo "targets available:"
-	echo "\tupgrade\tpulls from GitHub, updating the core Bashpress"
+	@echo "targets available:"
+	@echo "\tupgrade\tpulls from GitHub, updating the core Bashpress"
 
 upgrade:
 	git pull origin master
