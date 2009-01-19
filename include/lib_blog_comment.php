@@ -1,5 +1,7 @@
 <?php
 
+loadlib('input');
+
 # Save a submitted comment
 #   TODO: Use a Smarty template for this HTML
 function blog_comment_save($name, $website, $text, $date = false) {
@@ -8,13 +10,12 @@ function blog_comment_save($name, $website, $text, $date = false) {
 	# Sanitize input
 	# TODO: Maybe allow some HTML instead of mercilessly stripping tags
 	# TODO: Turn links into <a href...
-	$name = strip_tags(trim($name));
-	$website = strip_tags(trim($website));
-	$text = strip_tags(trim($text));
+	$name = input_sanitize_smarty(strip_tags(trim($name)));
+	$website = input_sanitize_smarty(strip_tags(trim($website)));
+	$text = input_sanitize_smarty(strip_tags(trim($text)));
+	$html = input_htmlize($text, "\t\t");
 
-	# HTMLize
-	$html = "\t\t<p>" . implode("</p>\n<p>",
-		preg_split("!(?:\r?\n){2,}!", $text)) . "</p>\n";
+	# If they gave a website, show that with their name
 	if (preg_match('!^https?://.!', $website)) {
 		$link = "<a href=\"$website\">$name</a>";
 	} else { $link = $name; }

@@ -17,7 +17,6 @@ if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
 }
 
 require_once dirname(__FILE__) . '/../include/init.php';
-loadlib('dir');
 loadlib('blog_publish');
 
 # Check if this post has already been published
