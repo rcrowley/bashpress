@@ -19,10 +19,8 @@ function input_htmlize($text, $begin = '') {
 	# Break into regular and <pre> sections
 	$sections = preg_split('!(<pre>.*?</pre>)!is', $text, -1,
 		PREG_SPLIT_DELIM_CAPTURE);
-var_dump($sections);
 	foreach ($sections as $i => $text) {
 
-var_dump($text);
 		# Strip and HTML encode <pre> blocks
 		if (preg_match('!^<pre>(.*)</pre>$!i', $text, $match)) {
 			$sections[$i] = '<pre>' . htmlentities(strip_tags($match[1])) .
