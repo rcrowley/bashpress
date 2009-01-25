@@ -8,6 +8,7 @@
 <p><label for="text">Comment:</label><br />
 <textarea id="text" name="text" rows="12" cols="48" class="text">{$smarty.post.text}</textarea></p>
 <p>(All paragraph and line breaks will be preserved, URLs will be turned into
-links and all other tags will be stripped.)</p>
+links, <code>&lt;pre&gt;</code> tags will be preserved and all other tags will
+be stripped.)</p>
 <p><input type="submit" value="Comment" /></p>
 </form>
