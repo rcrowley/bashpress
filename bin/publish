@@ -18,6 +18,7 @@ if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
 
 require_once dirname(__FILE__) . '/../include/init.php';
 loadlib('blog_publish');
+loadlib('input');
 
 # Check if this post has already been published
 #   Don't allow republishing, instead, send them to the bin/republish script
@@ -125,7 +126,7 @@ $author = $dom->createElement('author');
 $author->appendChild($dom->createElement('name', '{$AUTHOR}'));
 $entry->appendChild($author);
 $content = $dom->createElement('content',
-	htmlspecialchars(blog_publish_sanitize($body)));
+	htmlspecialchars(input_sanitize_smarty($body)));
 $content->setAttribute('type', 'html');
 $entry->appendChild($content);
 if ($entries->length) { $feed->insertBefore($entry, $entries->item(0)); }

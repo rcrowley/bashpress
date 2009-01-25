@@ -16,20 +16,39 @@ function input_sanitize_smarty($dirty) {
 #   The URL-to-link code is basically how Wordpress does it
 function input_htmlize($text, $begin = '') {
 
-	# Paragraphs and line breaks
-	$arr = preg_split("!(?:\r?\n){2,}!", strip_tags(trim($text)));
-	foreach ($arr as $i => $text) {
-		$arr[$i] = implode("\n$begin<br />", preg_split("!(?:\r?\n)!", $text));
+	# Break into regular and <pre> sections
+	$sections = preg_split('!(<pre>.*?</pre>)!is', $text, -1,
+		PREG_SPLIT_DELIM_CAPTURE);
+var_dump($sections);
+	foreach ($sections as $i => $text) {
+
+var_dump($text);
+		# Strip and HTML encode <pre> blocks
+		if (preg_match('!^<pre>(.*)</pre>$!i', $text, $match)) {
+			$sections[$i] = '<pre>' . htmlentities(strip_tags($match[1])) .
+				"</pre>\n";
+		}
+
+		# HTML encode and markup paragraphs and line breaks
+		else {
+			$paragraphs = preg_split("!(?:\r?\n){2,}!",
+				htmlentities(strip_tags($text)));
+			foreach ($paragraphs as $j => $text) {
+				$paragraphs[$j] = implode("\n$begin<br />",
+					preg_split("!(?:\r?\n)!", $text));
+			}
+			$sections[$i] = "$begin<p>" . implode("</p>\n$begin<p>",
+				$paragraphs) . "</p>\n";
+		}
+
 	}
-	$out = "$begin<p>" . implode("</p>\n$begin<p>", $arr) . "</p>\n";
 
 	# Turn URLs to links
-	$out = preg_replace(
+	return trim(preg_replace(
 		'!(<a( [^>]+?>|>))<a [^>]+?>([^>]+?)</a></a>!i', '$1$3</a>',
 		preg_replace_callback(
 		'#(?<=[\s>])(\()?([\w]+?://(?:[\w\\x80-\\xff\#$%&~/\-=?@\[\](+]|[.,;:](?![\s<])|(?(1)\)(?![\s<])|\)))*)#is',
-		'_input_htmlize_link', $out));
-	return trim($out);
+		'_input_htmlize_link', implode('', $sections))));
 
 }
 function _input_htmlize_link($matches) {

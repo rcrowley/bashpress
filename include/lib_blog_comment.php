@@ -7,13 +7,12 @@ loadlib('input');
 function blog_comment_save($name, $website, $text, $date = false) {
 	$base = _blog_comment_base();
 
-	# Sanitize input
-	# TODO: Maybe allow some HTML instead of mercilessly stripping tags
-	# TODO: Turn links into <a href...
+	# Sanitize and HTMLize input
 	$name = input_sanitize_smarty(strip_tags(trim($name)));
 	$website = input_sanitize_smarty(strip_tags(trim($website)));
-	$text = input_sanitize_smarty(strip_tags(trim($text)));
-	$html = input_htmlize($text, "\t\t");
+	$text = trim($text);
+	$mail = strip_tags($text);
+	$html = input_htmlize(input_sanitize_smarty($text), "\t\t");
 
 	# If they gave a website, show that with their name
 	if (preg_match('!^https?://.!', $website)) {
@@ -35,7 +34,7 @@ function blog_comment_save($name, $website, $text, $date = false) {
 	global $FQDN;
 	mail($GLOBALS['MAIL'], 'New comment!',
 		"Post: http://$FQDN{$GLOBALS['URL']}\r\n\r\n" .
-		"Name: $name\r\nWebsite: $website\r\n\r\n$text\r\n",
+		"Name: $name\r\nWebsite: $website\r\n\r\n$mail\r\n",
 		"From: Bashpress <bashpress@$FQDN>\r\n");
 
 }
