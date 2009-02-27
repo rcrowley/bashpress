@@ -1,5 +1,3 @@
-Generate templates/.feed.atom if it doesn't exist so we can take it out of Git.
-
 Pull comment HTML out to a Smarty template.
 
 Post counts in archive pages and tag pages.
@@ -8,13 +6,6 @@ Validate post HTML before publishing and republishing.
 
 Newer/Older links for posts, too.
 
-
-
-From paper:
-CLI comment manager
 Email-to-publish gateway
-Smart quotes
-Markdown for comments (posts?)
-Link any links posted in comments
-Email when comment is posted
-Links for individual comments
+
+Smart quotes or full-on Markdown/Textile
