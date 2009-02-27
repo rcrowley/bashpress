@@ -3,12 +3,15 @@ NAME
 
 SYNOPSIS
 	<bashpress>/bin/new <title>
-	<bashpress>/bin/publish <path>
+	<bashpress>/bin/publish [-c] <path>
 
 DESCRIPTION
 	Bashpress is a rebellion against browser-based blogging engines,
 	WYSIWYG editors, and relational databases.  It is command-line only,
 	has no user accounts, and doesn't use a database.  It loves Smarty.
+
+		-c	This option, available to bin/publish and bin/republish
+			will disable commenting no matter the default state.
 
 INSTALLATION
 	Download or checkout Bashpress.  Use the included httpd.conf file to

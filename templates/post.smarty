@@ -11,10 +11,15 @@
 </ul>
 {$body}
 {ldelim}if !$page{rdelim}
+{if $comments}
 <p><a href="{$path}/{$file}#comments">Comments ({ldelim}blog_comment_count tpl=$smarty.template{rdelim})</a></p>
+{else}
+<p><a href="{$path}/{$file}">#</a></p>
+{/if}
 {ldelim}/if{rdelim}
 </div>
 {ldelim}if $page{rdelim}
+{if $comments}
 {ldelim}if !$preview{rdelim}
 <div id="comments">
 <h1>Comments <small>({ldelim}blog_comment_count{rdelim})</small></h1>
@@ -22,7 +27,10 @@
 {ldelim}include file=".posts{$path}/{$file}.comments.html"{rdelim}
 </ol>
 </div>
+{ldelim}if $COMMENTS{rdelim}
 {ldelim}include file="_comment.html"{rdelim}
 {ldelim}/if{rdelim}
+{ldelim}/if{rdelim}
+{/if}
 {ldelim}include file="_foot.html"{rdelim}
 {ldelim}/if{rdelim}

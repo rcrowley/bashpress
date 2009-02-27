@@ -6,13 +6,15 @@ loadlib('input');
 # Write the post's Smarty template
 #   The "special" string is safe because you should be escaping your
 #   HTML anyway
-function blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body) {
+function blog_publish_smarty($path, $file, $timestamp, $title, $tags,
+	$body, $comments) {
 	assign('path');
 	assign('file');
 	assign('date', date($GLOBALS['DATEFORMAT_POST'], $timestamp));
 	assign('title', input_sanitize_smarty($title));
 	assign('tags', input_sanitize_smarty($tags));
 	assign('body', input_sanitize_smarty($body));
+	assign('comments', $comments);
 	global $smarty;
 	file_put_contents("{$smarty->template_dir}/.posts$path/$file.html",
 		$smarty->fetch('post.smarty'), LOCK_EX);

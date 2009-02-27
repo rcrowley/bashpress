@@ -1,37 +1,43 @@
 #!/usr/bin/env php
 <?php
 
-# The only argument must be a valid and existing post
-if (2 != sizeof($argv)) { 
-	echo "Usage: {$argv[0]} <post>\n";
+require_once dirname(__FILE__) . '/../include/init.php';
+
+if (3 == sizeof($argv) && '-c' == $argv[1]) {
+	$comments = false;
+	$arg = $argv[2];
+} else if (2 == sizeof($argv)) {
+	$comments = $COMMENTS;
+	$arg = $argv[1];
+} else {
+	echo "Usage: {$argv[0]} [-c] <post>\n";
 	exit(1);
 }
-if (!file_exists($argv[1])) {
-	echo "[publish] can't find a post at {$argv[1]}\n";
+if (!file_exists($arg)) {
+	echo "[publish] can't find a post at $arg\n";
 	exit(1);
 }
 $base = realpath(dirname(__FILE__) . '/../posts');
-if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
+if ($base != substr(realpath($arg), 0, strlen($base))) {
 	echo "[publish] can only publish from the posts/ directory\n";
 	exit(1);
 }
 
-require_once dirname(__FILE__) . '/../include/init.php';
 loadlib('blog_publish');
 loadlib('input');
 
 # Check if this post has already been published
 #   Don't allow republishing, instead, send them to the bin/republish script
 $path = str_replace(realpath(dirname(__FILE__) . '/../posts'), '',
-	realpath($argv[1]));
+	realpath($arg));
 if (file_exists("{$smarty->template_dir}/.posts$path.html")) {
-	echo "[publish] can't republish {$argv[1]}\n[publish] try bin/republish\n";
+	echo "[publish] can't republish $arg\n[publish] try bin/republish\n";
 	exit(1);
 }
 
 # Move this post up to today if necessary
 $parts = explode('/', str_replace(
-	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
+	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($arg)));
 $file = array_pop($parts);
 if (date('Y-m-d') != implode('-', $parts)) {
 	$path = blog_publish_dir(dirname(__FILE__) . '/../posts',
@@ -41,15 +47,15 @@ if (date('Y-m-d') != implode('-', $parts)) {
 	# Delete empty directories in the date hierarchy to keep things tidy
 	$ii = sizeof($parts);
 	for ($i = 0; $i < $ii; ++$i) {
-		if (!@rmdir($argv[1] = dirname($argv[1]))) { break; }
+		if (!@rmdir($arg = dirname($arg))) { break; }
 	}
 
-	$argv[1] = dirname(__FILE__) . "/../posts/$path/$file";
+	$arg = dirname(__FILE__) . "/../posts/$path/$file";
 }
 
 # Create directories for the <year>/<month>/<day>
 $parts = explode('/', str_replace(
-	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
+	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($arg)));
 $file = array_pop($parts);
 $path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
 
@@ -79,9 +85,10 @@ file_put_contents("{$smarty->template_dir}/.posts$path/$file.date",
 
 # Write the post's Smarty template
 list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
-	file_get_contents($argv[1]), 3);
+	file_get_contents($arg), 3);
 $tags = preg_split('!\s+!', $tags);
-blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body);
+blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body,
+	$comments);
 echo "[publish] created the post's Smarty template\n";
 
 # Update the homepage
