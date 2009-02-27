@@ -27,9 +27,7 @@
 {ldelim}include file=".posts{$path}/{$file}.comments.html"{rdelim}
 </ol>
 </div>
-{ldelim}if $COMMENTS{rdelim}
 {ldelim}include file="_comment.html"{rdelim}
-{ldelim}/if{rdelim}
 {ldelim}/if{rdelim}
 {/if}
 {ldelim}include file="_foot.html"{rdelim}

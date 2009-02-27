@@ -1,3 +1,4 @@
+{if $COMMENTS}
 <form id="comment" action="{$URL}" method="post">
 <p><label for="test">Type &ldquo;qwerty&rdquo;:</label><br />
 <input id="test" name="test" type="text" size="32" class="text" /></p>
@@ -12,3 +13,4 @@ links, <code>&lt;pre&gt;</code> tags will be preserved and all other tags will
 be stripped.)</p>
 <p><input type="submit" value="Comment" /></p>
 </form>
+{/if}
