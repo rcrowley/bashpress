@@ -38,6 +38,8 @@ function blog_publish_dir($base, $dirs) {
 function blog_publish_pointers($parts, $new = true) {
 	if (!is_array($parts)) { return; }
 	global $smarty;
+
+	# Newer/older pointer
 	$tree = dir_rscandir("{$smarty->template_dir}/.posts", false);
 	$list = dir_flatten($tree);
 	$depth = 0;
@@ -63,6 +65,11 @@ function blog_publish_pointers($parts, $new = true) {
 				$path);
 		}
 	}
+
+	# Current pointer
+	file_put_contents("{$smarty->template_dir}/.posts/current",
+		"/{$parts[0]}/{$parts[1]}");
+
 }
 
 # Update the month listing
