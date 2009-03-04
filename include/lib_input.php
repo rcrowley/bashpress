@@ -33,7 +33,7 @@ function input_htmlize($text, $begin = '') {
 				htmlentities(strip_tags($text)));
 			foreach ($paragraphs as $j => $text) {
 				$paragraphs[$j] = implode("\n$begin<br />",
-					preg_split("!(?:\r?\n)!", $text));
+					preg_split("!\r?\n!", $text));
 			}
 			$sections[$i] = "$begin<p>" . implode("</p>\n$begin<p>",
 				$paragraphs) . "</p>\n";
@@ -41,15 +41,19 @@ function input_htmlize($text, $begin = '') {
 
 	}
 
-	# Turn URLs to links
+	return input_htmlize_links(implode('', $sections));
+}
+
+# Turn URLs to links
+function input_htmlize_links($text) {
 	return trim(preg_replace(
 		'!(<a( [^>]+?>|>))<a [^>]+?>([^>]+?)</a></a>!i', '$1$3</a>',
 		preg_replace_callback(
 		'#(?<=[\s>])(\()?([\w]+?://(?:[\w\\x80-\\xff\#$%&~/\-=?@\[\](+]|[.,;:](?![\s<])|(?(1)\)(?![\s<])|\)))*)#is',
-		'_input_htmlize_link', implode('', $sections))));
+		'_input_htmlize_links', " $text")));
 
 }
-function _input_htmlize_link($matches) {
+function _input_htmlize_links($matches) {
 	$url = _input_htmlize_cleanurl($matches[2]);
 	if(empty($url)) { return $matches[0]; }
 	else { return "{$matches[1]}<a href=\"$url\">$url</a>"; }
@@ -64,4 +68,28 @@ function _input_htmlize_cleanurl($url) {
 	}
 	return str_replace("'", '&#039;',
 		preg_replace('|&([^#])(?![a-z]{2,8};)|', '&#038;$1', $url));
+}
+
+# Turn IEEE-style footnote links into links with links from the footnotes
+# back into the document
+function input_footnoterize($text, $slug) {
+	$parts = preg_split('!\[\d+\s+([^\]]+)\]!', $text, -1,
+		PREG_SPLIT_DELIM_CAPTURE);
+	$index = 0;
+	$footnotes = array();
+	$ii = sizeof($parts);
+	for ($i = 1; $i < $ii; $i += 2) {
+		++$index;
+		$footnotes[] = "\t<li id=\"f-$slug-$index\">" .
+			input_htmlize_links($parts[$i]) .
+			" <a href=\"#f-$slug-$index-src\" " .
+			"class=\"footnote-src\">&#8617;</a></li>\n";
+		$parts[$i] = "<a id=\"f-$slug-$index-src\" " .
+			"href=\"#f-$slug-$index\" class=\"footnote\">[$index]</a>";
+	}
+	if (sizeof($footnotes)) {
+		$footnotes = "\n\n<ol class=\"footnote\">\n" .
+			implode('', $footnotes) . "</ol>\n";
+	} else { $footnotes = ''; }
+	return implode('', $parts) . $footnotes;
 }

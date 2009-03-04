@@ -45,6 +45,7 @@ $timestamp = strtotime(file_get_contents(
 list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
 	file_get_contents($arg), 3);
 $tags = preg_split('!\s+!', $tags);
+$body = input_footnoterize($body, end($parts));
 blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body,
 	$comments);
 echo "[republish] recreated the post's Smarty template\n";
