@@ -103,3 +103,92 @@ function blog_publish_tags($tags) {
 	file_put_contents("{$smarty->template_dir}/.tags.html",
 		"<ul id=\"tags\">\n" . implode('', $li) . "</ul>\n", LOCK_EX);
 }
+
+# Prepend a post to the Atom feed, either bumping an old post off the
+# end or replacing one with the same ID
+#   In replace_only mode, it will silently do nothing if the ID isn't
+#   already in the feed
+function blog_publish_feed($path, $file, $timestamp, $title, $body,
+	$replace_only = false) {
+	global $smarty;
+	$permalink = "http://{\$FQDN}$path/$file";
+	$published = date('c', $timestamp);
+
+	# Get the DOM of the feed
+	$dom = new DOMDocument;
+	if (file_exists("{$smarty->template_dir}/.feed.atom")) {
+		$dom->load("{$smarty->template_dir}/.feed.atom");
+	} else {
+		$dom->loadXML('<?xml version="1.0" encoding="utf-8"?>
+	<feed xmlns="http://www.w3.org/2005/Atom">
+		<title>{$TITLE}</title>
+		<link href="http://{$FQDN}/feed" rel="self"/>
+		<link href="http://{$FQDN}/" rel="alternate"/>
+		<id>http://{$FQDN}/feed</id>
+		<updated>2008-09-03T23:17:43-07:00</updated>
+		<author><name>{$AUTHOR}</name></author>
+	</feed>');
+	}
+	$feed = $dom->documentElement;
+
+	# Update the feed properties
+	$updated = $feed->getElementsByTagName('updated')->item(0);
+	$updated->removeChild($updated->firstChild);
+	$updated->appendChild($dom->createTextNode($date));
+
+	# Find and remove the entry we're displacing or replacing
+	#   In replace_only mode this will return if the entry isn't found
+	$index = false;
+	$entries = $feed->getElementsByTagName('entry');
+	$ii = $entries->length;
+	for ($i = 0; $i < $ii; ++$i) {
+		$entry = $entries->item($i);
+		if ($entry->getElementsByTagName('id')->item(0)
+			->firstChild->nodeValue == $permalink) {
+			$index = $i;
+			$feed->removeChild($entry);
+			$updated = date('c');
+			break;
+		}
+	}
+	if (false === $index) {
+		if ($replace_only) { return; }
+		else {
+			$index = 0;
+			if (15 == $entries->length) {
+				$feed->removeChild($entries->item(14));
+			}
+			$updated = $published;
+		}
+	}
+
+	# Create the new entry
+	$entry = $dom->createElement('entry');
+	$entry->appendChild($dom->createElement('title',
+		htmlspecialchars(input_sanitize_smarty($title))));
+	$link = $dom->createElement('link');
+	$link->setAttribute('href', $permalink);
+	$link->setAttribute('rel', 'alternate');
+	$entry->appendChild($link);
+	$entry->appendChild($dom->createElement('id', $permalink));
+	$entry->appendChild($dom->createElement('published', $published));
+	$entry->appendChild($dom->createElement('updated', $updated));
+	$author = $dom->createElement('author');
+	$author->appendChild($dom->createElement('name', '{$AUTHOR}'));
+	$entry->appendChild($author);
+	$content = $dom->createElement('content',
+		htmlspecialchars(input_sanitize_smarty($body)));
+	$content->setAttribute('type', 'html');
+	$entry->appendChild($content);
+
+	# Insert the new entry into the DOM
+	if ($entries->length <= $index) { $feed->appendChild($entry); }
+	else {
+		$feed->insertBefore($entry, $entries->item($index));
+	}
+
+	# Serialize and save
+	file_put_contents("{$smarty->template_dir}/.feed.atom",
+		$dom->saveXML(), LOCK_EX);
+
+}

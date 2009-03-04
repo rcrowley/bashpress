@@ -96,50 +96,7 @@ prepend('/.index',  5);
 echo "[publish] updated the homepage\n";
 
 # Update the Atom feed
-$permalink = "http://{\$FQDN}$path/$file";
-$date = date('c', $timestamp);
-$dom = new DOMDocument;
-if (file_exists("{$smarty->template_dir}/.feed.atom")) {
-	$dom->load("{$smarty->template_dir}/.feed.atom");
-} else {
-	$dom->loadXML('<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-	<title>{$TITLE}</title>
-	<link href="http://{$FQDN}/feed" rel="self"/>
-	<link href="http://{$FQDN}/" rel="alternate"/>
-	<id>http://{$FQDN}/feed</id>
-	<updated>2008-09-03T23:17:43-07:00</updated>
-	<author><name>{$AUTHOR}</name></author>
-</feed>');
-}
-$feed = $dom->documentElement;
-$updated = $feed->getElementsByTagName('updated')->item(0);
-$updated->removeChild($updated->firstChild);
-$updated->appendChild($dom->createTextNode($date));
-$entries = $feed->getElementsByTagName('entry');
-if (15 == $entries->length) {
-	$feed->removeChild($entries->item(14));
-}
-$entry = $dom->createElement('entry');
-$entry->appendChild($dom->createElement('title', $title));
-$link = $dom->createElement('link');
-$link->setAttribute('href', $permalink);
-$link->setAttribute('rel', 'alternate');
-$entry->appendChild($link);
-$entry->appendChild($dom->createElement('id', $permalink));
-$entry->appendChild($dom->createElement('published', $date));
-$entry->appendChild($dom->createElement('updated', $date));
-$author = $dom->createElement('author');
-$author->appendChild($dom->createElement('name', '{$AUTHOR}'));
-$entry->appendChild($author);
-$content = $dom->createElement('content',
-	htmlspecialchars(input_sanitize_smarty($body)));
-$content->setAttribute('type', 'html');
-$entry->appendChild($content);
-if ($entries->length) { $feed->insertBefore($entry, $entries->item(0)); }
-else { $feed->appendChild($entry); }
-file_put_contents("{$smarty->template_dir}/.feed.atom",
-	$dom->saveXML(), LOCK_EX);
+blog_publish_feed($path, $file, $timestamp, $title, $body, false);
 echo "[publish] updated the Atom feed\n";
 
 # Prepend to archive pages
@@ -171,6 +128,7 @@ function prepend($tpl, $count = 0) {
 # Update the archive indices
 blog_publish_months();
 blog_publish_tags($tags);
+echo "[publish] updated archive pages\n";
 
 
 
