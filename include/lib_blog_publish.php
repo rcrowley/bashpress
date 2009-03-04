@@ -112,7 +112,7 @@ function blog_publish_feed($path, $file, $timestamp, $title, $body,
 	$replace_only = false) {
 	global $smarty;
 	$permalink = "http://{\$FQDN}$path/$file";
-	$published = date('c', $timestamp);
+	$date_published = date('c', $timestamp);
 
 	# Get the DOM of the feed
 	$dom = new DOMDocument;
@@ -131,11 +131,6 @@ function blog_publish_feed($path, $file, $timestamp, $title, $body,
 	}
 	$feed = $dom->documentElement;
 
-	# Update the feed properties
-	$updated = $feed->getElementsByTagName('updated')->item(0);
-	$updated->removeChild($updated->firstChild);
-	$updated->appendChild($dom->createTextNode($date));
-
 	# Find and remove the entry we're displacing or replacing
 	#   In replace_only mode this will return if the entry isn't found
 	$index = false;
@@ -147,7 +142,7 @@ function blog_publish_feed($path, $file, $timestamp, $title, $body,
 			->firstChild->nodeValue == $permalink) {
 			$index = $i;
 			$feed->removeChild($entry);
-			$updated = date('c');
+			$date_updated = date('c');
 			break;
 		}
 	}
@@ -158,9 +153,14 @@ function blog_publish_feed($path, $file, $timestamp, $title, $body,
 			if (15 == $entries->length) {
 				$feed->removeChild($entries->item(14));
 			}
-			$updated = $published;
+			$date_updated = $date_published;
 		}
 	}
+
+	# Update the feed properties
+	$updated = $feed->getElementsByTagName('updated')->item(0);
+	$updated->removeChild($updated->firstChild);
+	$updated->appendChild($dom->createTextNode($date_updated));
 
 	# Create the new entry
 	$entry = $dom->createElement('entry');
@@ -171,8 +171,8 @@ function blog_publish_feed($path, $file, $timestamp, $title, $body,
 	$link->setAttribute('rel', 'alternate');
 	$entry->appendChild($link);
 	$entry->appendChild($dom->createElement('id', $permalink));
-	$entry->appendChild($dom->createElement('published', $published));
-	$entry->appendChild($dom->createElement('updated', $updated));
+	$entry->appendChild($dom->createElement('published', $date_published));
+	$entry->appendChild($dom->createElement('updated', $date_updated));
 	$author = $dom->createElement('author');
 	$author->appendChild($dom->createElement('name', '{$AUTHOR}'));
 	$entry->appendChild($author);
