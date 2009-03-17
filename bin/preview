@@ -39,6 +39,7 @@ $path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
 list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
 	file_get_contents($argv[1]), 3);
 $tags = preg_split('!\s+!', $tags);
+$body = input_footnoterize($body, end($parts));
 blog_publish_smarty($path, "$file.preview", time(), $title, $tags, $body,
 	false);
 echo "[publish] created a preview of the post's Smarty template\n";
