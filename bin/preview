@@ -22,6 +22,7 @@ if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
 	exit(1);
 }
 
+loadlib('blog');
 loadlib('blog_publish');
 
 
@@ -34,7 +35,7 @@ loadlib('blog_publish');
 $parts = explode("/", str_replace(
 	realpath(dirname(__FILE__) . "/../posts") . "/", "", realpath($argv[1])));
 $file = array_pop($parts);
-$path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
+$path = blog_dir("{$smarty->template_dir}/.posts", $parts);
 
 # Write the preview Smarty template
 list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",

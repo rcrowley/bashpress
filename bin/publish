@@ -25,6 +25,7 @@ if ($base != substr(realpath($arg), 0, strlen($base))) {
 	exit(1);
 }
 
+loadlib('blog');
 loadlib('blog_publish');
 loadlib('input');
 
@@ -42,7 +43,7 @@ $parts = explode("/", str_replace(
 	realpath(dirname(__FILE__) . "/../posts") . "/", "", realpath($arg)));
 $file = array_pop($parts);
 if (date('Y-m-d') != implode("-", $parts)) {
-	$path = blog_publish_dir(dirname(__FILE__) . "/../posts",
+	$path = blog_dir(dirname(__FILE__) . "/../posts",
 		array(date("Y"), date("m"), date("d")));
 	rename($argv[1], dirname(__FILE__) . "/../posts$path/$file");
 
@@ -59,7 +60,7 @@ if (date('Y-m-d') != implode("-", $parts)) {
 $parts = explode("/", str_replace(
 	realpath(dirname(__FILE__) . "/../posts") . "/", "", realpath($arg)));
 $file = array_pop($parts);
-$path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
+$path = blog_dir("{$smarty->template_dir}/.posts", $parts);
 
 # Create newer/older pointers in the directory tree
 blog_publish_pointers($parts);

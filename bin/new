@@ -10,6 +10,7 @@ if (2 != sizeof($argv)) {
 }
 
 loadlib('url');
+loadlib('blog');
 loadlib('cli');
 
 $title = url_sanitize($argv[1]);
@@ -25,17 +26,16 @@ if (file_exists("$posts/$y/$m/$d/$title")) {
 }
 
 # Date directories
-$y = date("Y");
-$m = date("m");
-$d = date("d");
-if (!is_dir("$posts/$y")) { mkdir("$posts/$y", 0755); }
-if (!is_dir("$posts/$y/$m")) { mkdir("$posts/$y/$m", 0755); }
-if (!is_dir("$posts/$y/$m/$d")) { mkdir("$posts/$y/$m/$d", 0755); }
-file_put_contents("$posts/$y/$m/$d/$title",
+$path = blog_dir($posts, array(
+	date("Y"),
+	date("m"),
+	date("d"),
+));
+file_put_contents("$posts$path/$title",
 	"{$argv[1]}\n\n[tags]\n\n<p>[body]</p>");
 
 # Great success!
-cli_edit(realpath("$posts/$y/$m/$d/$title"));
+cli_edit(realpath("$posts$path/$title"));
 err("[new] post has been created and can be edited in:\n[new] ",
-	realpath("$posts/$y/$m/$d/$title"), "\n");
+	realpath("$posts$path/$title"), "\n");
 exit(0);

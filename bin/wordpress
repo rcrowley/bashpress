@@ -10,6 +10,7 @@ if (5 != sizeof($argv)) {
 }
 list(, $db_host, $db_user, $db_pass, $db_name) = $argv;
 
+loadlib('blog');
 loadlib('blog_publish');
 loadlib('blog_comment');
 
@@ -39,7 +40,8 @@ while ($post = mysql_fetch_assoc($posts_q)) {
 		date("m", $timestamp),
 		date("d", $timestamp),
 	);
-	$path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
+	blog_dir(dirname(__FILE__) . "/../posts", $parts);
+	$path = blog_dir("{$smarty->template_dir}/.posts", $parts);
 
 	# Extract tags from the terms tables
 	$tags_q = mysql_query("SELECT t.slug
@@ -74,10 +76,13 @@ while ($post = mysql_fetch_assoc($posts_q)) {
 	file_put_contents("{$smarty->template_dir}/.posts$path/$file.date",
 		date("r", $timestamp), LOCK_EX);
 
-	# Write the post's Smarty template
-	blog_publish_smarty($path, $file, $timestamp, $title, $tags,
-		"<p>" . implode("</p>\n<p>", preg_split('!(?:\r?\n){2,}!',
-		$body)) . "</p>\n");
+	# Write the post and its Smarty template
+	$body = "<p>" . implode("</p>\n<p>", preg_split('!(?:\r?\n){2,}!',
+		$body)) . "</p>\n";
+	file_put_contents(dirname(__FILE__) . "/../posts$path/$file",
+		"$title\n\n" . implode(" ", $tags) . "\n\n$body");
+	blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body,
+		$COMMENTS);
 
 	# Append to archive and tag pages
 	$archive = "";
