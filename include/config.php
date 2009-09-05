@@ -7,7 +7,7 @@ $TITLE = "Richard Crowley&#8217;s blog";
 $FQDN = "dev.rcrowley.org";
 $AUTHOR = "Richard Crowley";
 $MAIL = "r@rcrowley.org";
-$COMMENTS = true;#false;
+$COMMENTS = false;
 
 # Expose some site parameters to the templates
 assign("TITLE");
