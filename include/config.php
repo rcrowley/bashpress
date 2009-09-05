@@ -1,5 +1,7 @@
 <?php
 
+$EDITOR = "vi";
+
 # Site parameters
 $TITLE = "Richard Crowley&#8217;s blog";
 $FQDN = "dev.rcrowley.org";
