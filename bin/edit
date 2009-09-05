@@ -17,14 +17,6 @@ if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
 	exit(1);
 }
 
-# Find the proper editor
-if ($editor = $EDITOR) {}
-else if ($editor = getenv('EDITOR')) {}
-else { $editor = "vi"; }
-$command = rtrim(`which $editor`);
-if (!$command) {
-	err("[edit] editor $editor not found\n");
-	exit(1);
-}
+loadlib('cli');
 
-pcntl_exec($command, array($argv[1]), $_ENV);
+cli_edit($argv[1]);
