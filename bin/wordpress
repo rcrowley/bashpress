@@ -1,21 +1,22 @@
 #!/usr/bin/env php
 <?php
 
+require_once dirname(__FILE__) . "/../include/init.php";
+
 # Check out the arguments
 if (5 != sizeof($argv)) {
-	echo "Usage: {$argv[0]} <db-host> <db-user> <db-pass> <db-name>\n";
+	err("Usage: {$argv[0]} <db-host> <db-user> <db-pass> <db-name>\n");
 	exit(1);
 }
 list(, $db_host, $db_user, $db_pass, $db_name) = $argv;
 
-require_once dirname(__FILE__) . '/../include/init.php';
 loadlib('blog_publish');
 loadlib('blog_comment');
 
 # Open a database connection
 $link = mysql_connect($db_host, $db_user, $db_pass);
 if (!is_resource($link)) {
-	echo "[wordpress] error connecting to database\n";
+	err("[wordpress] error connecting to database\n");
 	exit(1);
 }
 mysql_select_db($db_name, $link);
@@ -34,9 +35,9 @@ while ($post = mysql_fetch_assoc($posts_q)) {
 
 	# Create directories for the <year>/<month>/<day>
 	$parts = array(
-		date('Y', $timestamp),
-		date('m', $timestamp),
-		date('d', $timestamp)
+		date("Y", $timestamp),
+		date("m", $timestamp),
+		date("d", $timestamp),
 	);
 	$path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
 
@@ -71,15 +72,15 @@ while ($post = mysql_fetch_assoc($posts_q)) {
 
 	# Write the post's date into the .date file
 	file_put_contents("{$smarty->template_dir}/.posts$path/$file.date",
-		date('r', $timestamp), LOCK_EX);
+		date("r", $timestamp), LOCK_EX);
 
 	# Write the post's Smarty template
 	blog_publish_smarty($path, $file, $timestamp, $title, $tags,
-		"<p>" . implode("</p>\n<p>", preg_split("!(?:\r?\n){2,}!",
+		"<p>" . implode("</p>\n<p>", preg_split('!(?:\r?\n){2,}!',
 		$body)) . "</p>\n");
 
 	# Append to archive and tag pages
-	$archive = '';
+	$archive = "";
 	foreach ($parts as $p) {
 		$archive .= "/$p";
 		file_put_contents("{$smarty->template_dir}/.posts$archive.html",
@@ -100,7 +101,7 @@ while ($post = mysql_fetch_assoc($posts_q)) {
 	#   Note that this works in the opposite direction as bin/publish
 	blog_publish_pointers($parts, false);
 
-	echo "[wordpress] published $path/$file\n";
+	err("[wordpress] published $path/$file\n");
 }
-echo "[wordpress] done\n";
+err("[wordpress] done\n");
 exit(0);

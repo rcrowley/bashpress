@@ -1,25 +1,27 @@
 #!/usr/bin/php
 <?php
 
-require_once dirname(__FILE__) . '/../include/init.php';
+require_once dirname(__FILE__) . "/../include/init.php";
 
-if (3 == sizeof($argv) && '-c' == $argv[1]) {
+if (3 == sizeof($argv) && "-c" == $argv[1]) {
 	$comments = false;
 	$arg = $argv[2];
-} else if (2 == sizeof($argv)) {
+}
+else if (2 == sizeof($argv)) {
 	$comments = $COMMENTS;
 	$arg = $argv[1];
-} else {
-	echo "Usage: {$argv[0]} [-c] <post>\n";
+}
+else {
+	err("Usage: {$argv[0]} [-c] <post>\n");
 	exit(1);
 }
 if (!file_exists($arg)) {
-	echo "[republish] can't find a post at $arg\n";
+	err("[republish] can't find a post at $arg\n");
 	exit(1);
 }
-$base = realpath(dirname(__FILE__) . '/../posts');
+$base = realpath(dirname(__FILE__) . "/../posts");
 if ($base != substr(realpath($arg), 0, strlen($base))) {
-	echo "[republish] can only publish from the posts/ directory\n";
+	err("[republish] can only publish from the posts/ directory\n");
 	exit(1);
 }
 
@@ -32,27 +34,27 @@ loadlib('blog_publish');
 #
 
 # Get the path to the post
-$parts = explode('/', str_replace(
-	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($arg)));
+$parts = explode("/", str_replace(
+	realpath(dirname(__FILE__) . "/../posts") . "/", "", realpath($arg)));
 $file = array_pop($parts);
-$path = '/' . implode('/', $parts);
+$path = "/" . implode("/", $parts);
 
 # Get the date stored at original publishing time
 $timestamp = strtotime(file_get_contents(
 	"{$smarty->template_dir}/.posts$path/$file.date"));
 
 # Rewrite the post's Smarty template
-list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
+list($title, $tags, $body) = preg_split('!\r?\n\r?\n!',
 	file_get_contents($arg), 3);
 $tags = preg_split('!\s+!', $tags);
 $body = input_footnoterize($body, end($parts));
 blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body,
 	$comments);
-echo "[republish] recreated the post's Smarty template\n";
+err("[republish] recreated the post's Smarty template\n");
 
 # Rewrite the post in the feed, if it's there
 blog_publish_feed($path, $file, $timestamp, $title, $body, true);
-echo "[republish] updated the Atom feed\n";
+err("[republish] updated the Atom feed\n");
 
 # TODO: Update the tag pages
 #echo "[republish] updated archive pages\n";
@@ -60,6 +62,6 @@ echo "[republish] updated the Atom feed\n";
 
 
 # Great success!
-echo "[republish] republished the post at\n",
-	"[republish] http://$FQDN$path/$file\n";
+err("[republish] republished the post at\n",
+	"[republish] http://$FQDN$path/$file\n");
 exit(0);

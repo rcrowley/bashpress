@@ -27,4 +27,5 @@ else { $post = implode('/', $URL_PARTS) . ".$FORMAT"; }
 if (file_exists("{$smarty->template_dir}/.posts/$post")) {
 	assign('page', true);
 	display(".posts/$post");
-} else { display('404'); }
+}
+else { display('404'); }

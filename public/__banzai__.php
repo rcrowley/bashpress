@@ -1,10 +1,10 @@
 <?php
 
-require_once dirname(__FILE__) . '/../include/init.php';
+require_once dirname(__FILE__) . "/../include/init.php";
 
 # Find the proper route to use
-require_once dirname(__FILE__) . '/../include/routes.php';
-if ('' == $_GET['__url__']) { $_GET['__url__'] = '/'; }
+require_once dirname(__FILE__) . "/../include/routes.php";
+if ("" == $_GET['__url__']) { $_GET['__url__'] = "/"; }
 foreach ($routes as $pattern => $FILE) {
 	if (preg_match(
 		"!^$pattern(?:/|\.(html|xml|json|rss|rdf|atom|php))?(?:\?.*)?$!",
@@ -16,7 +16,7 @@ foreach ($routes as $pattern => $FILE) {
 	}
 }
 if (!isset($URL)) {
-	$FILE = '404.php';
+	$FILE = "404.php";
 	$URL = $_GET['__url__'];
 	$URL_PARTS = array();
 	$FORMAT = 'html';

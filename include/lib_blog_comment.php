@@ -17,7 +17,8 @@ function blog_comment_save($name, $website, $text, $date = false) {
 	# If they gave a website, show that with their name
 	if (preg_match('!^https?://.!', $website)) {
 		$link = "<a href=\"$website\">$name</a>";
-	} else { $link = $name; }
+	}
+	else { $link = $name; }
 
 	# Take either the passed date or now
 	$date = date($GLOBALS['DATEFORMAT_COMMENT'],
@@ -32,10 +33,10 @@ function blog_comment_save($name, $website, $text, $date = false) {
 
 	# Email the site owner
 	global $FQDN;
-	mail($GLOBALS['MAIL'], 'New comment!',
+	mail($GLOBALS['MAIL'], "New comment!",
 		"Post: http://$FQDN{$GLOBALS['URL']}\r\n\r\n" .
 		"Name: $name\r\nWebsite: $website\r\n\r\n$mail\r\n",
-		"From: Bashpress <bashpress@$FQDN>\r\n");
+		"From: Bashpress <noreply@$FQDN>\r\n");
 
 }
 
@@ -44,16 +45,17 @@ $GLOBALS['smarty']->register_function(
 	'blog_comment_count', 'blog_comment_count');
 function blog_comment_count($params = false, $smarty = false) {
 	if (isset($params['tpl'])) {
-		$parts = explode('/', $params['tpl']);
+		$parts = explode("/", $params['tpl']);
 		array_unshift($parts, $GLOBALS['smarty']->template_dir);
 		$file = array_pop($parts);
-		$parts[] = substr($file, 0, strrpos($file, '.')) . '.count';
-		return filesize(implode('/', $parts));
-	} else { return filesize(_blog_comment_base() . '.count'); }
+		$parts[] = substr($file, 0, strrpos($file, ".")) . ".count";
+		return filesize(implode("/", $parts));
+	}
+	else { return filesize(_blog_comment_base() . ".count"); }
 }
 
 # Get the base of comment file names
 function _blog_comment_base() {
-	return $GLOBALS['smarty']->template_dir . '/.posts/' .
-		implode('/', $GLOBALS['URL_PARTS']);
+	return $GLOBALS['smarty']->template_dir . "/.posts/" .
+		implode("/", $GLOBALS['URL_PARTS']);
 }

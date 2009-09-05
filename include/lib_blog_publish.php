@@ -17,14 +17,14 @@ function blog_publish_smarty($path, $file, $timestamp, $title, $tags,
 	assign('comments', $comments);
 	global $smarty;
 	file_put_contents("{$smarty->template_dir}/.posts$path/$file.html",
-		$smarty->fetch('post.smarty'), LOCK_EX);
+		$smarty->fetch("post.smarty"), LOCK_EX);
 }
 
 # Create directories from the publishing directory for this post
 function blog_publish_dir($base, $dirs) {
 	if (!is_array($dirs)) { return false; }
 	if (!is_dir($base)) { mkdir($base, 0755); }
-	$path = '';
+	$path = "";
 	foreach ($dirs as $d) {
 		$path .= "/$d";
 		if (!is_dir("$base$path")) { mkdir("$base$path", 0755); }
@@ -43,7 +43,7 @@ function blog_publish_pointers($parts, $new = true) {
 	$tree = dir_rscandir("{$smarty->template_dir}/.posts", false);
 	$list = dir_flatten($tree);
 	$depth = 0;
-	$path = '';
+	$path = "";
 	foreach ($parts as $p) {
 		++$depth;
 		$path .= "/$p";
@@ -51,12 +51,13 @@ function blog_publish_pointers($parts, $new = true) {
 		if ($new && $i || !$new && $i < sizeof($list[$depth]) - 1) {
 			if ($new) {
 				--$i;
-				$a = 'older';
-				$b = 'newer';
-			} else {
+				$a = "older";
+				$b = "newer";
+			}
+			else {
 				++$i;
-				$a = 'newer';
-				$b = 'older';
+				$a = "newer";
+				$b = "older";
 			}
 			file_put_contents("{$smarty->template_dir}/.posts$path/$a",
 				$list[$depth][$i]);
@@ -82,7 +83,7 @@ function blog_publish_months() {
 		$li[] = "\t<li><a href=\"$m\">" . substr($m, 1) . "</a></li>\n";
 	}
 	file_put_contents("{$GLOBALS['smarty']->template_dir}/.months.html",
-		"<ul id=\"months\">\n" . implode('', $li) . "</ul>\n", LOCK_EX);
+		"<ul id=\"months\">\n" . implode("", $li) . "</ul>\n", LOCK_EX);
 }	
 
 # Update the tag listing
@@ -101,7 +102,7 @@ function blog_publish_tags($tags) {
 		$li[] = "\t<li><a href=\"/tags/$t\">$t</a></li>\n";
 	}
 	file_put_contents("{$smarty->template_dir}/.tags.html",
-		"<ul id=\"tags\">\n" . implode('', $li) . "</ul>\n", LOCK_EX);
+		"<ul id=\"tags\">\n" . implode("", $li) . "</ul>\n", LOCK_EX);
 }
 
 # Prepend a post to the Atom feed, either bumping an old post off the
@@ -112,22 +113,26 @@ function blog_publish_feed($path, $file, $timestamp, $title, $body,
 	$replace_only = false) {
 	global $smarty;
 	$permalink = "http://{\$FQDN}$path/$file";
-	$date_published = date('c', $timestamp);
+	$date_published = date("c", $timestamp);
 
 	# Get the DOM of the feed
 	$dom = new DOMDocument;
 	if (file_exists("{$smarty->template_dir}/.feed.atom")) {
 		$dom->load("{$smarty->template_dir}/.feed.atom");
-	} else {
-		$dom->loadXML('<?xml version="1.0" encoding="utf-8"?>
-	<feed xmlns="http://www.w3.org/2005/Atom">
-		<title>{$TITLE}</title>
-		<link href="http://{$FQDN}/feed" rel="self"/>
-		<link href="http://{$FQDN}/" rel="alternate"/>
-		<id>http://{$FQDN}/feed</id>
-		<updated>2008-09-03T23:17:43-07:00</updated>
-		<author><name>{$AUTHOR}</name></author>
-	</feed>');
+	}
+	else {
+		$dom->loadXML(<<<EOD
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>{\$TITLE}</title>
+	<link href="http://{\$FQDN}/feed" rel="self"/>
+	<link href="http://{\$FQDN}/" rel="alternate"/>
+	<id>http://{\$FQDN}/feed</id>
+	<updated>2008-09-03T23:17:43-07:00</updated>
+	<author><name>{\$AUTHOR}</name></author>
+</feed>
+EOD
+		);
 	}
 	$feed = $dom->documentElement;
 
@@ -142,7 +147,7 @@ function blog_publish_feed($path, $file, $timestamp, $title, $body,
 			->firstChild->nodeValue == $permalink) {
 			$index = $i;
 			$feed->removeChild($entry);
-			$date_updated = date('c');
+			$date_updated = date("c");
 			break;
 		}
 	}
@@ -168,13 +173,13 @@ function blog_publish_feed($path, $file, $timestamp, $title, $body,
 		htmlspecialchars(input_sanitize_smarty($title))));
 	$link = $dom->createElement('link');
 	$link->setAttribute('href', $permalink);
-	$link->setAttribute('rel', 'alternate');
+	$link->setAttribute('rel', "alternate");
 	$entry->appendChild($link);
 	$entry->appendChild($dom->createElement('id', $permalink));
 	$entry->appendChild($dom->createElement('published', $date_published));
 	$entry->appendChild($dom->createElement('updated', $date_updated));
 	$author = $dom->createElement('author');
-	$author->appendChild($dom->createElement('name', '{$AUTHOR}'));
+	$author->appendChild($dom->createElement('name', "{\$AUTHOR}"));
 	$entry->appendChild($author);
 	$content = $dom->createElement('content',
 		htmlspecialchars(input_sanitize_smarty($body)));

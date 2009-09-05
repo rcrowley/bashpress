@@ -1,12 +1,17 @@
 <?php
 
-require_once '/usr/share/php/smarty/Smarty.class.php';
+require_once "smarty/Smarty.class.php";
 $smarty = new Smarty;
-$smarty->template_dir = realpath(dirname(__FILE__) . '/../templates');
-$smarty->compile_dir = realpath(dirname(__FILE__) . '/../.templates');
+$smarty->template_dir = realpath(dirname(__FILE__) . "/../templates");
+$smarty->compile_dir = realpath(dirname(__FILE__) . "/../.templates");
 
 function loadlib($name) {
 	require_once dirname(__FILE__) . "/lib_$name.php";
+}
+
+function err() {
+	$arr = func_get_args();
+	fwrite(STDERR, implode("", $arr));
 }
 
 function assign() {
@@ -25,11 +30,14 @@ function display($name = false) {
 	# Send proper Content-Type header
 	if ('xml' == $GLOBALS['FORMAT']) {
 		header("Content-Type: text/xml\r\n");
-	} else if ('rss' == $GLOBALS['FORMAT']) {
+	}
+	else if ('rss' == $GLOBALS['FORMAT']) {
 		header("Content-Type: application/rss+xml\r\n");
-	} else if ('atom' == $GLOBALS['FORMAT']) {
+	}
+	else if ('atom' == $GLOBALS['FORMAT']) {
 		header("Content-Type: application/atom+xml\r\n");
-	} else if ('json' == $GLOBALS['FORMAT']) {
+	}
+	else if ('json' == $GLOBALS['FORMAT']) {
 		header("Content-Type: application/json\r\n");
 	}
 
@@ -37,12 +45,12 @@ function display($name = false) {
 	if (false === $name) {
 		$smarty->display(reset(explode('.', $GLOBALS['FILE'])) . '.' .
 			$GLOBALS['FORMAT']);
-	} else {
+	}
+	else {
 		if (false === strpos($name, '.')) {
 			$smarty->display($name . '.' . $GLOBALS['FORMAT']);
-		} else {
-			$smarty->display($name);
 		}
+		else { $smarty->display($name); }
 	}
 	exit;
 }
@@ -51,9 +59,9 @@ function redirect($url) {
 	header("Location: $url\r\n");
 	echo <<<EOD
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://w3.org/TR/xhtml1/DTD/xhtml1.1.dtd">
-<html><head></head><body><p><a href="$url">302, ur leavin&rsquo; here.</a></p></body></html>
+<html><head></head><body><p><a href="$url">302, ur leavin&#8217; here.</a></p></body></html>
 EOD;
 	exit;
 }
 
-require_once dirname(__FILE__) . '/config.php';
+require_once dirname(__FILE__) . "/config.php";

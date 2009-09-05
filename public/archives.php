@@ -10,4 +10,5 @@ if (file_exists("{$smarty->template_dir}/.posts/$date.html")) {
 	assign('older', @file_get_contents(
 		"{$smarty->template_dir}/.posts/$date/older"));
 	display();
-} else { display('404'); }
+}
+else { display('404'); }

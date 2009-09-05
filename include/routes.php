@@ -7,23 +7,22 @@
 $routes = array(
 
 	# Individual posts and secret previews
-	'/(\d{4})/(\d{2})/(\d{2})/([^./]+)/([^./]+)' => 'post.php',
-	'/(\d{4})/(\d{2})/(\d{2})/([^./]+)' => 'post.php',
+	'/(\d{4})/(\d{2})/(\d{2})/([^./]+)/([^./]+)' => "post.php",
+	'/(\d{4})/(\d{2})/(\d{2})/([^./]+)' => "post.php",
 
 	# Tags
-	'/tags/([^.]+)' => 'tags.php',
+	'/tags/([^.]+)' => "tags.php",
 
 	# Date archives
-	'/(\d{4})/(\d{2})/(\d{2})' => 'archives.php',
-	'/(\d{4})/(\d{2})' => 'archives.php',
-	'/(\d{4})' => 'archives.php',
+	'/(\d{4})/(\d{2})/(\d{2})' => "archives.php",
+	'/(\d{4})/(\d{2})' => "archives.php",
+	'/(\d{4})' => "archives.php",
 
 	# Atom feed
-	'/feed' => 'feed.php',
+	'/feed' => "feed.php",
 
+	'/' => "index.php",
 
-	'/' => 'index.php',
-
-	'' => '404.php'
+	'' => "404.php",
 
 );

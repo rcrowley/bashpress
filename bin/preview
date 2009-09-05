@@ -6,21 +6,22 @@
 #   TODO: Make sure it's a draft
 #
 
+require_once dirname(__FILE__) . "/../include/init.php";
+
 if (2 != sizeof($argv)) { 
-	echo "Usage: {$argv[0]} <post>\n";
+	err("Usage: {$argv[0]} <post>\n");
 	exit(1);
 }
 if (!file_exists($argv[1])) {
-	echo "[publish] can't find a post at {$argv[1]}\n";
+	err("[publish] can't find a post at {$argv[1]}\n");
 	exit(1);
 }
-$base = realpath(dirname(__FILE__) . '/../posts');
+$base = realpath(dirname(__FILE__) . "/../posts");
 if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
-	echo "[publish] can only publish from the posts/ directory\n";
+	err("[publish] can only publish from the posts/ directory\n");
 	exit(1);
 }
 
-require_once dirname(__FILE__) . '/../include/init.php';
 loadlib('blog_publish');
 
 
@@ -30,8 +31,8 @@ loadlib('blog_publish');
 #
 
 # Get the path to the post
-$parts = explode('/', str_replace(
-	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($argv[1])));
+$parts = explode("/", str_replace(
+	realpath(dirname(__FILE__) . "/../posts") . "/", "", realpath($argv[1])));
 $file = array_pop($parts);
 $path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
 
@@ -42,12 +43,12 @@ $tags = preg_split('!\s+!', $tags);
 $body = input_footnoterize($body, end($parts));
 blog_publish_smarty($path, "$file.preview", time(), $title, $tags, $body,
 	false);
-echo "[publish] created a preview of the post's Smarty template\n";
+err("[publish] created a preview of the post's Smarty template\n");
 
 
 
 # Great success!
 $hash = sha1_file($argv[1]);
-echo "[publish] previewed the post at\n",
-	"[publish] http://$FQDN$path/$file/$hash\n";
+err("[publish] previewed the post at\n",
+	"[publish] http://$FQDN$path/$file/$hash\n");
 exit(0);

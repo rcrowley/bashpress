@@ -1,29 +1,29 @@
 #!/usr/bin/env php
 <?php
 
+require_once dirname(__FILE__) . "/../include/init.php";
+
 # Needs a post and a number as arguments
 if (3 != sizeof($argv)) { 
-	echo "Usage: {$argv[0]} <id(s)> <post>\n",
-		"<id(s)> is a comma-separated list of numbers or hyphenated ranges\n";
+	err("Usage: {$argv[0]} <id(s)> <post>\n",
+		"<id(s)> is a comma-separated list of numbers or hyphenated ranges\n");
 	exit(1);
 }
 if (!file_exists($argv[2])) {
-	echo "[rmcomment] can't find a post at {$argv[2]}\n";
+	err("[rmcomment] can't find a post at {$argv[2]}\n");
 	exit(1);
 }
-$base = realpath(dirname(__FILE__) . '/../posts');
+$base = realpath(dirname(__FILE__) . "/../posts");
 if ($base != substr(realpath($argv[2]), 0, strlen($base))) {
-	echo "[rmcomment] posts live in the posts/ directory\n";
+	err("[rmcomment] posts live in the posts/ directory\n");
 	exit(1);
 }
-
-require_once dirname(__FILE__) . '/../include/init.php';
 
 # Make sure this post has been published
-$path = str_replace(realpath(dirname(__FILE__) . '/../posts'), '',
+$path = str_replace(realpath(dirname(__FILE__) . "/../posts"), "",
 	realpath($argv[2]));
 if (!file_exists("{$smarty->template_dir}/.posts$path.html")) {
-	echo "[rmcomment] {$argv[2]} isn't published\n";
+	err("[rmcomment] {$argv[2]} isn't published\n");
 	exit(1);
 }
 
@@ -31,23 +31,26 @@ if (!file_exists("{$smarty->template_dir}/.posts$path.html")) {
 $count = filesize("{$smarty->template_dir}/.posts$path.count");
 
 # Parse the 2nd parameter to see which comments need to be deleted
-$ranges = explode(',', $argv[1]);
+$ranges = explode(",", $argv[1]);
 $ids = array();
 foreach ($ranges as $r) {
 	if (preg_match('!^\d+$!', $r)) {
 		$ids[] = $r;
-	} else if (preg_match('!^-(\d+)$!', $r, $match)) {
+	}
+	else if (preg_match('!^-(\d+)$!', $r, $match)) {
 		$ids = array_merge($ids, range(0, $match[1]));
-	} else if (preg_match('!^(\d+)-$!', $r, $match)) {
+	}
+	else if (preg_match('!^(\d+)-$!', $r, $match)) {
 		$ids = array_merge($ids, range($match[1], $count));
-	} else if (preg_match('!^(\d+)-(\d+)$!', $r, $match)) {
+	}
+	else if (preg_match('!^(\d+)-(\d+)$!', $r, $match)) {
 		$ids = array_merge($ids, range($match[1], $match[2]));
 	}
 }
 $ids = array_unique($ids);
 sort($ids, SORT_NUMERIC);
 if (!sizeof($ids)) {
-	echo "[rmcomment] no comments marked for removal\n";
+	err("[rmcomment] no comments marked for removal\n");
 	exit(1);
 }
 if (0 == $ids[0]) { array_shift($ids); }
@@ -58,14 +61,14 @@ if ($index = array_search($count, $ids)) {
 # Delete comments
 $comments = explode("\n\n", file_get_contents(
 	"{$smarty->template_dir}/.posts$path.comments.html"));
-array_unshift($comments, '');
+array_unshift($comments, "");
 foreach ($ids as $id) { unset($comments[$id]); }
 array_shift($comments);
 file_put_contents("{$smarty->template_dir}/.posts$path.comments.html",
 	implode("\n\n", $comments), LOCK_EX);
 file_put_contents("{$smarty->template_dir}/.posts$path.count",
-	str_repeat('.', sizeof($comments) - 1), LOCK_EX);
+	str_repeat(".", sizeof($comments) - 1), LOCK_EX);
 
 # Great success!
-echo "[rmcomment] comments removed\n";
+err("[rmcomment] comments removed\n");
 exit(0);

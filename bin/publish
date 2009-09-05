@@ -1,25 +1,27 @@
 #!/usr/bin/env php
 <?php
 
-require_once dirname(__FILE__) . '/../include/init.php';
+require_once dirname(__FILE__) . "/../include/init.php";
 
-if (3 == sizeof($argv) && '-c' == $argv[1]) {
+if (3 == sizeof($argv) && "-c" == $argv[1]) {
 	$comments = false;
 	$arg = $argv[2];
-} else if (2 == sizeof($argv)) {
+}
+else if (2 == sizeof($argv)) {
 	$comments = $COMMENTS;
 	$arg = $argv[1];
-} else {
-	echo "Usage: {$argv[0]} [-c] <post>\n";
+}
+else {
+	err("Usage: {$argv[0]} [-c] <post>\n");
 	exit(1);
 }
 if (!file_exists($arg)) {
-	echo "[publish] can't find a post at $arg\n";
+	err("[publish] can't find a post at $arg\n");
 	exit(1);
 }
-$base = realpath(dirname(__FILE__) . '/../posts');
+$base = realpath(dirname(__FILE__) . "/../posts");
 if ($base != substr(realpath($arg), 0, strlen($base))) {
-	echo "[publish] can only publish from the posts/ directory\n";
+	err("[publish] can only publish from the posts/ directory\n");
 	exit(1);
 }
 
@@ -28,20 +30,20 @@ loadlib('input');
 
 # Check if this post has already been published
 #   Don't allow republishing, instead, send them to the bin/republish script
-$path = str_replace(realpath(dirname(__FILE__) . '/../posts'), '',
+$path = str_replace(realpath(dirname(__FILE__) . "/../posts"), "",
 	realpath($arg));
 if (file_exists("{$smarty->template_dir}/.posts$path.html")) {
-	echo "[publish] can't republish $arg\n[publish] try bin/republish\n";
+	err("[publish] can't republish $arg\n[publish] try bin/republish\n");
 	exit(1);
 }
 
 # Move this post up to today if necessary
-$parts = explode('/', str_replace(
-	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($arg)));
+$parts = explode("/", str_replace(
+	realpath(dirname(__FILE__) . "/../posts") . "/", "", realpath($arg)));
 $file = array_pop($parts);
-if (date('Y-m-d') != implode('-', $parts)) {
-	$path = blog_publish_dir(dirname(__FILE__) . '/../posts',
-		array(date('Y'), date('m'), date('d')));
+if (date('Y-m-d') != implode("-", $parts)) {
+	$path = blog_publish_dir(dirname(__FILE__) . "/../posts",
+		array(date("Y"), date("m"), date("d")));
 	rename($argv[1], dirname(__FILE__) . "/../posts$path/$file");
 
 	# Delete empty directories in the date hierarchy to keep things tidy
@@ -54,8 +56,8 @@ if (date('Y-m-d') != implode('-', $parts)) {
 }
 
 # Create directories for the <year>/<month>/<day>
-$parts = explode('/', str_replace(
-	realpath(dirname(__FILE__) . '/../posts') . '/', '', realpath($arg)));
+$parts = explode("/", str_replace(
+	realpath(dirname(__FILE__) . "/../posts") . "/", "", realpath($arg)));
 $file = array_pop($parts);
 $path = blog_publish_dir("{$smarty->template_dir}/.posts", $parts);
 
@@ -90,36 +92,37 @@ $tags = preg_split('!\s+!', $tags);
 $body = input_footnoterize($body, end($parts));
 blog_publish_smarty($path, $file, $timestamp, $title, $tags, $body,
 	$comments);
-echo "[publish] created the post's Smarty template\n";
+err("[publish] created the post's Smarty template\n");
 
 # Update the homepage
-prepend('/.index',  5);
-echo "[publish] updated the homepage\n";
+prepend("/.index",  5);
+err("[publish] updated the homepage\n");
 
 # Update the Atom feed
 blog_publish_feed($path, $file, $timestamp, $title, $body, false);
-echo "[publish] updated the Atom feed\n";
+err("[publish] updated the Atom feed\n");
 
 # Prepend to archive pages
-$archive = '/.posts';
+$archive = "/.posts";
 foreach ($parts as $p) {
 	$archive .= "/$p";
 	prepend($archive);
 }
-echo "[publish] added this post to the archives\n";
+err("[publish] added this post to the archives\n");
 
 # Prepend to tag pages
 if (!is_dir("{$smarty->template_dir}/.tags")) {
 	mkdir("{$smarty->template_dir}/.tags", 0755);
 }
 foreach ($tags as $t) { prepend("/.tags/$t"); }
-echo "[publish] added this post to the tag pages\n";
+err("[publish] added this post to the tag pages\n");
 
 function prepend($tpl, $count = 0) {
 	$tpl = "{$GLOBALS['smarty']->template_dir}$tpl.html";
 	if (file_exists($tpl)) {
 		$lines = explode("\n", file_get_contents($tpl));
-	} else { $lines = array(); }
+	}
+	else { $lines = array(); }
 	global $path, $file;
 	array_unshift($lines, "{include file=\".posts$path/$file.html\"}");
 	if (0 < $count) { $lines = array_slice($lines, 0, $count); }
@@ -129,10 +132,10 @@ function prepend($tpl, $count = 0) {
 # Update the archive indices
 blog_publish_months();
 blog_publish_tags($tags);
-echo "[publish] updated archive pages\n";
+err("[publish] updated archive pages\n");
 
 
 
 # Great success!
-echo "[publish] published the post at\n[publish] http://$FQDN$path/$file\n";
+err("[publish] published the post at\n[publish] http://$FQDN$path/$file\n");
 exit(0);
