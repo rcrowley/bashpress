@@ -1,11 +1,6 @@
 #!/usr/bin/php
 <?php
 
-#
-# The only argument must be a valid and existing post
-#   TODO: Make sure it's a draft
-#
-
 require_once dirname(__FILE__) . "/../include/init.php";
 
 if (2 != sizeof($argv)) { 
@@ -25,12 +20,6 @@ if ($base != substr(realpath($argv[1]), 0, strlen($base))) {
 loadlib('blog');
 loadlib('blog_publish');
 
-
-
-#
-# Preview the post
-#
-
 # Get the path to the post
 $parts = explode("/", str_replace(
 	realpath(dirname(__FILE__) . "/../posts") . "/", "", realpath($argv[1])));
@@ -45,8 +34,6 @@ $body = input_footnoterize($body, end($parts));
 blog_publish_smarty($path, "$file.preview", time(), $title, $tags, $body,
 	false);
 err("[publish] created a preview of the post's Smarty template\n");
-
-
 
 # Great success!
 $hash = sha1_file($argv[1]);

@@ -80,12 +80,6 @@ file_put_contents("{$smarty->template_dir}/.posts$path/$file.date",
 # Delete the post's preview
 @unlink("{$smarty->template_dir}/.posts$path/$file.preview.html");
 
-
-
-#
-# Write the post in all its various forms
-#
-
 # Write the post's Smarty template
 list($title, $tags, $body) = preg_split("!\r?\n\r?\n!",
 	file_get_contents($arg), 3);
@@ -134,8 +128,6 @@ function prepend($tpl, $count = 0) {
 blog_publish_months();
 blog_publish_tags($tags);
 err("[publish] updated archive pages\n");
-
-
 
 # Great success!
 err("[publish] published the post at\n[publish] http://$FQDN$path/$file\n");
