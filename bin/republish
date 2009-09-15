@@ -3,7 +3,15 @@
 
 require_once dirname(__FILE__) . "/../include/init.php";
 
-if (3 == sizeof($argv) && "-c" == $argv[1]) {
+if (3 == $argc && "-c" == $argv[1]) {
+	$comments = !$COMMENTS;
+	$arg = $argv[2];
+}
+if (3 == $argc && "--comments" == $argv[1]) {
+	$comments = true;
+	$arg = $argv[2];
+}
+if (3 == $argc && "--no-comments" == $argv[1]) {
 	$comments = false;
 	$arg = $argv[2];
 }
@@ -12,7 +20,8 @@ else if (2 == sizeof($argv)) {
 	$arg = $argv[1];
 }
 else {
-	err("Usage: {$argv[0]} [-c] <post>\n");
+	err("Usage: {$argv[0]} [-c|--comments|--no-comments] <post>\n",
+		"    -c  Toggles comments from their default state\n");
 	exit(1);
 }
 if (!file_exists($arg)) {
