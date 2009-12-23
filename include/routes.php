@@ -12,6 +12,7 @@ $routes = array(
 
 	# Tags
 	'/tags/([^.]+)' => "tags.php",
+	'/tags' => "tags.php",
 
 	# Date archives
 	'/(\d{4})/(\d{2})/(\d{2})' => "archives.php",

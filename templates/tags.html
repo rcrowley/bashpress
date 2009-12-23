@@ -1,9 +1,13 @@
 {assign var="title" value="$tag"}
 {include file="_head.html"}
+{if $tag}
 <h1>Posts tagged &#8220;{$tag}&#8221;</h1>
 {include file=".tags/$tag.html"}
 </div>
 <div class="nav">
 <p>Other tags:</p>
+{else}
+<h1>Tags</h1>
+{/if}
 {include file=".tags.html"}
 {include file="_foot.html"}
