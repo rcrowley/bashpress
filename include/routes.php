@@ -18,6 +18,7 @@ $routes = array(
 	'/(\d{4})/(\d{2})/(\d{2})' => "archives.php",
 	'/(\d{4})/(\d{2})' => "archives.php",
 	'/(\d{4})' => "archives.php",
+	'/archives' => "archives.php",
 
 	# Atom feed
 	'/feed' => "feed.php",

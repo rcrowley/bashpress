@@ -1,5 +1,6 @@
 {assign var="title" value="$date"}
 {include file="_head.html"}
+{if $date}
 <h1 class="archives">{$date}</h1>
 {include file=".posts/$date.html"}
 <ul>
@@ -10,8 +11,8 @@
 	<li><a href="{$older}">Older &raquo;</a></li>
 {/if}
 </ul>
-</div>
-<div class="nav">
-<p>Elsewhere in time:</p>
+{else}
+<h1>Archives</h1>
 {include file=".months.html"}
+{/if}
 {include file="_foot.html"}
