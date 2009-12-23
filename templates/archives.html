@@ -4,12 +4,8 @@
 <h1 class="archives">{$date}</h1>
 {include file=".posts/$date.html"}
 <ul>
-{if $newer}
-	<li><a href="{$newer}">&laquo; Newer</a></li>
-{/if}
-{if $older}
-	<li><a href="{$older}">Older &raquo;</a></li>
-{/if}
+	<li>{if $newer}<a href="{$newer}">{/if}&laquo; Newer{if $newer}</a>{/if}</li>
+	<li>{if $older}<a href="{$older}">{/if}Older &raquo;{if $older}</a>{/if}</li>
 </ul>
 {else}
 <h1>Archives</h1>
